@@ -17,13 +17,13 @@ logger = logging.getLogger("minimalist_ad_tool")
 
 app = Flask(__name__)
 
-# Sample Minimalist skincare presets with real beminimalist.co URLs, authentic product photos, and clinical claims
+# Authentic Minimalist presets with strictly scraped data (no invented claims)
 SAMPLE_PRESETS = [
     {
         "id": "massage-oil",
         "url": "https://beminimalist.co/products/pediatrics-provitamin-d3-massage-oil",
         "name": "Provitamin D3 Massage Oil",
-        "active_ingredient": "Provitamin D3 • Vitamin E & F",
+        "active_ingredient": "Provitamin D3",
         "price": "₹569 / 100ml",
         "image_url": "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/MassageOilNew.png?v=1721398127",
         "description": "Crafted with nourishing Coconut, Sunflower, Safflower & Almond Oils enriched with Provitamin D3 to protect delicate skin and prevent moisture loss.",
@@ -35,36 +35,36 @@ SAMPLE_PRESETS = [
         "id": "retinol-0-6",
         "url": "https://beminimalist.co/products/retinol-0-6",
         "name": "Retinol 0.6% Face Serum",
-        "active_ingredient": "Pure Retinol 0.6% • CoQ10",
+        "active_ingredient": "Retinol 0.6%",
         "price": "₹617 / 30ml",
         "image_url": "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/Retinol_06_New.png?v=1721398129",
         "description": "Medium strength Retinol formula in pure squalane for fading fine lines, smoothing uneven texture, and promoting cellular turnover.",
         "free_from": "Fragrance Free • Non-comedogenic • Essential Oil Free",
-        "tested_for": "Evaluated for safety through clinical patch testing under the supervision of a certified Dermatologist.",
+        "tested_for": "The product has been evaluated for safety through patch testing under the supervision of a Dermatologist.",
         "cta": "Shop Now at beminimalist.co"
     },
     {
         "id": "copper-peptide",
         "url": "https://beminimalist.co/products/copper_peptide_pdrn_1-25_face_serum",
         "name": "Copper Peptide + PDRN 1.25% Face Serum",
-        "active_ingredient": "Copper Peptide 1% • PDRN (Sodium DNA)",
+        "active_ingredient": "Copper Peptide + PDRN 1.25%",
         "price": "₹664 / 30ml",
         "image_url": "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/CopyofArtboard1_2.jpg?v=1757069577",
         "description": "Advanced anti-aging serum enriched with Sodium DNA and multi-molecular Hyaluronic Acid to restore skin firmness, elasticity, and cellular repair.",
         "free_from": "Fragrance Free • Silicones Free • Parabens Free • Sulfates Free • Dyes Free • Essential Oils Free",
-        "tested_for": "Dermatologically Tested • Clinically Proven Efficacy in 2-4 Weeks",
+        "tested_for": "",  # Not on page -> left blank
         "cta": "Shop Now at beminimalist.co"
     },
     {
         "id": "hair-growth-15-6",
         "url": "https://beminimalist.co/products/hair-growth-anti-grey-actives-15-6-hair-serum",
         "name": "Hair Growth + Anti-Grey 15.6% Hair Serum",
-        "active_ingredient": "Darkenyl • Redensyl • Procapil 15.6%",
+        "active_ingredient": "Hair Growth + Anti-Grey 15.6%",
         "price": "₹854 / 50ml",
         "image_url": "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/websiteimage_shadow_texture.jpg?v=1785500401",
         "description": "Advanced formulation powered by a 15.6% blend of 6 proven actives to visibly reduce grey hair density, minimize hair fall, and support follicular growth.",
         "free_from": "Fragrance free • Silicones free • Parabens free • Sulfates free • Dyes free • Essential Oils free",
-        "tested_for": "Clinically Tested on Humans in Presence of Certified Dermatologist in Independent UK Lab",
+        "tested_for": "",  # Not on page -> left blank
         "cta": "Shop Now at beminimalist.co"
     }
 ]
@@ -80,17 +80,38 @@ def clean_text(raw_html):
     return text
 
 def extract_active_ingredient(title, desc=""):
-    """Heuristically extract active ingredient name and percentage from title or description."""
+    """Heuristically extract active ingredient name and percentage from title or description. Never invent."""
+    # Pattern with percentage, e.g. "Retinol 0.6%", "Niacinamide 10%", "Copper Peptide + PDRN 1.25%"
     match = re.search(r"([A-Za-z0-9\+\-\s]+?\b\d+(?:\.\d+)?%)", title)
     if match:
         return match.group(1).strip()
-    cleaned = re.sub(r"(Face|Hair|Body|Baby)?\s*(Serum|Moisturizer|Cleanser|Toner|Shampoo|Cream|Balm|Oil|Massage|Lotion).*$", "", title, flags=re.IGNORECASE).strip()
-    if cleaned:
-        return cleaned
-    return "Clinical Actives"
+    
+    # Known key skincare/haircare active names without percentage
+    known_actives = [
+        "Provitamin D3", "Vitamin C", "Vitamin B12", "Vitamin B5", "Niacinamide",
+        "Salicylic Acid", "L-Ascorbic Acid", "Hyaluronic Acid", "Polyhydroxy Acid",
+        "Alpha Arbutin", "Tranexamic", "Kojic Acid", "Glycolic Acid", "Lactic Acid",
+        "Mandelic Acid", "Azelaic Acid", "Ceramide", "Peptide", "PDRN", "Retinal",
+        "Retinol", "Squalane", "Marula Oil", "Bifida Ferment", "Zinc Oxide", "HOCL"
+    ]
+    for act in known_actives:
+        if re.search(r'\b' + re.escape(act) + r'\b', title, re.I):
+            return act
+
+    # Strip product form suffixes
+    cleaned = re.sub(r"(Face|Hair|Body|Baby)?\s*(Serum|Moisturizer|Cleanser|Toner|Shampoo|Cream|Balm|Oil|Massage|Lotion|Bag|Pouch|Kit|Set).*$", "", title, flags=re.IGNORECASE).strip()
+    if cleaned and cleaned.lower() not in ["minimalist", "the", "free", "gift"]:
+        for act in known_actives:
+            if re.search(r'\b' + re.escape(act) + r'\b', cleaned, re.I):
+                return cleaned
+
+    return ""
 
 def extract_free_from(soup, raw_desc):
-    """Extract authentic free-from claims dynamically from product page icons and text."""
+    """
+    Extract authentic free-from claims dynamically from product page icons and text.
+    Never invent claims. Returns empty string if not found on page.
+    """
     icons = []
     # Check PDP icons list
     for container in soup.find_all(class_=re.compile(r'product-icons-list|pdp_icon_lists|free_from|claims-icons', re.I)):
@@ -107,10 +128,13 @@ def extract_free_from(soup, raw_desc):
     if m:
         return clean_text(m.group(1))
 
-    return "Fragrance Free • Non-Comedogenic • Essential Oil Free • Dye Free"
+    return ""
 
 def extract_tested_for(soup, raw_desc):
-    """Extract clinical test claims (e.g. Proven Safe / Clinically Tested / Patch Tested)."""
+    """
+    Extract clinical test claims (e.g. Proven Safe / Clinically Tested / Patch Tested).
+    Never invent claims. Returns empty string if not found on page.
+    """
     full_desc_clean = clean_text(raw_desc)
 
     # 1. Check for 'Proven Safe:' specifically
@@ -133,18 +157,18 @@ def extract_tested_for(soup, raw_desc):
     # 3. Check for independent lab / human test citations
     for tag in soup.find_all(['p', 'span', 'em']):
         t = clean_text(tag.get_text())
-        if 'all tests are conducted on humans' in t.lower() or 'clinically tested to be' in t.lower():
+        if 'all tests are conducted on humans' in t.lower() or ('clinically tested to be' in t.lower() and len(t) < 220):
             if 25 < len(t) < 220 and not tag.find(['p', 'div']):
                 return t
 
-    return "Clinically Tested & Proven Safe • Dermatologist Approved"
+    return ""
 
 def fetch_beminimalist_product(url):
     """
     Fetch and parse a beminimalist.co product page server-side.
     Uses certifi for SSL verification.
     First attempts Shopify's native .js endpoint, then falls back to HTML parsing (JSON-LD & OpenGraph).
-    Extracts name, price, description, image_url, active_ingredient, free_from, and tested_for.
+    Leaves fields blank if not found on page. Never invents claims.
     """
     if not url or not isinstance(url, str):
         raise ValueError("No URL provided")
@@ -170,13 +194,13 @@ def fetch_beminimalist_product(url):
     }
 
     product_data = {
-        "name": None,
-        "price": None,
-        "description": None,
-        "image_url": None,
-        "active_ingredient": None,
-        "free_from": None,
-        "tested_for": None,
+        "name": "",
+        "price": "",
+        "description": "",
+        "image_url": "",
+        "active_ingredient": "",
+        "free_from": "",
+        "tested_for": "",
         "cta": "Shop Now at beminimalist.co",
         "url": clean_url
     }
@@ -300,11 +324,15 @@ def fetch_beminimalist_product(url):
     if product_data["image_url"] and product_data["image_url"].startswith("//"):
         product_data["image_url"] = "https:" + product_data["image_url"]
 
-    if not product_data["free_from"]:
-        product_data["free_from"] = "Fragrance Free • Non-Comedogenic • Essential Oil Free • Dye Free"
+    # Ensure empty string if field could not be extracted (NEVER invent claims)
+    if product_data["free_from"] is None:
+        product_data["free_from"] = ""
 
-    if not product_data["tested_for"]:
-        product_data["tested_for"] = "Clinically Tested & Proven Safe • Dermatologist Approved"
+    if product_data["tested_for"] is None:
+        product_data["tested_for"] = ""
+
+    if product_data["active_ingredient"] is None:
+        product_data["active_ingredient"] = ""
 
     # If description contains embedded "Proven Safe: ...", remove it from description body so tested_for holds it exclusively
     if product_data["description"]:

@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const adHeadline = document.getElementById('ad-headline-text');
   const adActive = document.getElementById('ad-active-text');
+  const adActiveBadge = document.querySelector('.ad-active-badge');
   const adPrice = document.getElementById('ad-price-text');
   const adDesc = document.getElementById('ad-description-text');
   const adClaims = document.getElementById('ad-claims-text');
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Format Price Cleanly
   function formatPrice(val) {
-    if (!val) return '₹569 / 100ml';
+    if (!val) return '';
     val = val.trim();
     if (!val.startsWith('₹') && !val.toLowerCase().startsWith('rs')) {
       return `₹${val}`;
@@ -64,26 +65,67 @@ document.addEventListener('DOMContentLoaded', () => {
     return val;
   }
 
-  // Render Ad Canvas strictly from inputs
+  // Render Ad Canvas strictly from inputs without inventing missing claims
   function renderAdCreative() {
-    const name = nameInput.value.trim() || 'Provitamin D3 Massage Oil';
-    const active = activeInput.value.trim() || 'Provitamin D3 • Vitamin E & F';
-    const price = formatPrice(priceInput.value);
-    const desc = descInput.value.trim() || 'Crafted with nourishing Coconut, Sunflower, Safflower & Almond Oils enriched with Provitamin D3 to protect delicate skin and prevent moisture loss.';
-    const freeFrom = freeFromInput.value.trim() || 'Fragrance Free • Sulfates Free • Essential Oils Free • Mineral Oil Free • Dyes Free • Parabens Free';
-    const tested = (testedInput && testedInput.value.trim()) ? testedInput.value.trim() : 'Proven Safe: Clinically Tested to be Hypoallergenic, Non-Comedogenic, Sensitive skin safe, Pediatrician-approved & Kind to Biome Certified, this oil is clinically validated for safety.';
+    const name = nameInput.value.trim() || 'Product Name';
+    const active = activeInput.value.trim();
+    const price = formatPrice(priceInput.value) || 'Price Not Found';
+    const desc = descInput.value.trim() || 'Description: Not found on page';
+    const freeFrom = freeFromInput.value.trim();
+    const tested = (testedInput && testedInput.value.trim()) ? testedInput.value.trim() : '';
     const cta = ctaInput.value.trim() || 'Shop Now at beminimalist.co';
     const imgUrl = imageInput.value.trim() || DEFAULT_IMG;
 
     // Direct mapping to template elements
     if (adHeadline) adHeadline.textContent = name;
-    if (adActive) adActive.textContent = active;
     if (adPrice) adPrice.textContent = price;
     if (adDesc) adDesc.textContent = desc;
-    if (adClaims) adClaims.textContent = freeFrom;
-    if (adTested) adTested.textContent = tested;
     if (adCtaText) adCtaText.textContent = cta;
 
+    // Active Ingredient
+    if (adActive) {
+      if (active) {
+        adActive.textContent = active;
+        if (adActiveBadge) {
+          adActiveBadge.style.display = 'inline-flex';
+          adActiveBadge.style.opacity = '1';
+        }
+      } else {
+        adActive.textContent = 'Active ingredient: Not found on page';
+        if (adActiveBadge) {
+          adActiveBadge.style.display = 'inline-flex';
+          adActiveBadge.style.opacity = '0.5';
+        }
+      }
+    }
+
+    // Free-From Claims Strip
+    if (adClaims) {
+      if (freeFrom) {
+        adClaims.textContent = freeFrom;
+        adClaims.style.opacity = '1';
+        adClaims.style.fontStyle = 'normal';
+      } else {
+        adClaims.textContent = 'Free-From Claims: Not found on page';
+        adClaims.style.opacity = '0.5';
+        adClaims.style.fontStyle = 'italic';
+      }
+    }
+
+    // Clinical Testing & Safety
+    if (adTested) {
+      if (tested) {
+        adTested.textContent = tested;
+        adTested.style.opacity = '1';
+        adTested.style.fontStyle = 'normal';
+      } else {
+        adTested.textContent = 'Clinical safety validation: Not found on page';
+        adTested.style.opacity = '0.5';
+        adTested.style.fontStyle = 'italic';
+      }
+    }
+
+    // Product Bottle Image
     if (imgUrl && adImg) {
       adImg.src = imgUrl;
       adImg.onerror = () => {
@@ -137,20 +179,32 @@ document.addEventListener('DOMContentLoaded', () => {
       if (resp.ok && data.success && data.product) {
         const prod = data.product;
 
-        // Auto-fill all form fields
+        // Auto-fill all form fields strictly from scraped data (never invented claims)
         nameInput.value = prod.name || '';
         activeInput.value = prod.active_ingredient || '';
+        activeInput.placeholder = prod.active_ingredient ? 'e.g. Provitamin D3' : 'Not found on page';
+
         priceInput.value = prod.price || '';
+        priceInput.placeholder = prod.price ? 'e.g. ₹569 / 100ml' : 'Not found on page';
+
         descInput.value = prod.description || '';
-        if (prod.free_from) freeFromInput.value = prod.free_from;
-        if (prod.tested_for && testedInput) testedInput.value = prod.tested_for;
+        descInput.placeholder = prod.description ? 'Clinical benefits and outcomes...' : 'Not found on page';
+
+        freeFromInput.value = prod.free_from || '';
+        freeFromInput.placeholder = prod.free_from ? 'e.g. Fragrance Free • Sulfates Free' : 'Not found on page';
+
+        if (testedInput) {
+          testedInput.value = prod.tested_for || '';
+          testedInput.placeholder = prod.tested_for ? 'e.g. Proven Safe: Clinically Tested...' : 'Not found on page';
+        }
+
         if (prod.cta) ctaInput.value = prod.cta;
         if (prod.image_url) imageInput.value = prod.image_url;
 
         // Update ad creative preview
         renderAdCreative();
 
-        showStatusBanner('success', '✓ Product Details Loaded', `${prod.name} (${prod.price}) parsed server-side. Edit below if needed.`);
+        showStatusBanner('success', '✓ Product Details Loaded', `${prod.name || 'Product'} (${prod.price || 'Price not found'}) parsed server-side. Unextracted fields left blank.`);
       } else {
         const errorReason = data.error || data.reason || 'Failed to fetch product';
         console.error('Server-side product fetch failed:', errorReason, data);
@@ -243,10 +297,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       nameInput.value = chip.dataset.name || '';
       activeInput.value = chip.dataset.active || '';
+      activeInput.placeholder = chip.dataset.active ? 'e.g. Provitamin D3' : 'Not found on page';
+
       priceInput.value = chip.dataset.price || '';
       descInput.value = chip.dataset.desc || '';
       freeFromInput.value = chip.dataset.free || '';
-      if (testedInput && chip.dataset.tested) testedInput.value = chip.dataset.tested;
+      freeFromInput.placeholder = chip.dataset.free ? 'e.g. Fragrance Free • Sulfates Free' : 'Not found on page';
+
+      if (testedInput) {
+        testedInput.value = chip.dataset.tested || '';
+        testedInput.placeholder = chip.dataset.tested ? 'e.g. Proven Safe: Clinically Tested...' : 'Not found on page';
+      }
+
       ctaInput.value = chip.dataset.cta || '';
       imageInput.value = chip.dataset.image || '';
 

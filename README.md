@@ -19,6 +19,11 @@ Paste any `beminimalist.co` product URL → the backend fetches and parses produ
   - **Clinical Safety & "Tested For" Extraction**: Automatically parses clinical testing endorsements (e.g., *Proven Safe: Clinically Tested to be Hypoallergenic, Non-Comedogenic, Sensitive skin safe, Pediatrician-approved & Kind to Biome Certified*).
   - **Active Ingredient Detection**: Heuristically extracts active ingredients and concentrations (e.g. *Provitamin D3*, *Retinol 0.6%*).
 
+- **Zero Invented Claims Policy**:
+  - When any field (`free_from`, `tested_for`, `active_ingredient`) cannot be extracted from the scraped page, the backend leaves it strictly blank (`""`).
+  - The UI clearly shows `"Not found on page"` rather than generating synthetic claims or fallbacks.
+  - Users can manually input custom values into the fallback form if desired.
+
 - **Robust Error Handling & Manual Form Fallback**:
   - If a fetch fails (404, invalid URL, network timeout), the backend logs the exact error, status code, URL, and full traceback via Python's standard `logging` module.
   - A descriptive error banner is presented in the UI explaining why the fetch failed.
