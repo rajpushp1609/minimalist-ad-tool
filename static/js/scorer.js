@@ -68,12 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
       tabPasteMode.classList.add('active');
       tabStructuredMode.classList.remove('active');
       pasteContainer.classList.remove('hidden');
+      pasteContainer.style.display = 'block';
       structuredContainer.classList.add('hidden');
+      structuredContainer.style.display = 'none';
     } else {
       tabStructuredMode.classList.add('active');
       tabPasteMode.classList.remove('active');
       structuredContainer.classList.remove('hidden');
+      structuredContainer.style.display = 'block';
       pasteContainer.classList.add('hidden');
+      pasteContainer.style.display = 'none';
     }
   }
 
@@ -84,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const SAMPLE_COMPLIANT = {
     headline: "Niacinamide 10% Face Serum",
     active_ingredient: "Niacinamide 10% + Zinc 1%",
-    supporting_text: "Formulated with pure Niacinamide to balance excess sebum secretion, calm redness, and reduce the appearance of visible pores in 2 to 4 weeks.",
-    free_from: "Fragrance Free • Essential Oils Free • Dyes Free",
-    tested_for: "Dermatologically tested: Evaluated for skin safety through 48-hour patch testing under the supervision of an independent dermatologist.",
+    supporting_text: "For oily, acne-prone skin with post-inflammatory redness. Formulated with pure Niacinamide (Vitamin B3) to balance sebum secretion and Zinc PCA to calm inflammation. Apply 2-3 drops daily in AM and PM routines after cleansing. In a 4-week independent consumer trial of 45 subjects, 89% reported reduced visible oiliness.",
+    free_from: "Fragrance Free • Essential Oils Free • Dyes Free • Sulfates Free",
+    tested_for: "Dermatologically tested: Evaluated for skin safety through 48-hour patch testing under the supervision of an independent certified dermatologist.",
     cta: "Shop Now at beminimalist.co"
   };
 
@@ -233,8 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
       auditBtn.classList.add('btn-loading');
       auditBtnText.textContent = 'Auditing with DeepSeek...';
       reportEmptyState.classList.add('hidden');
+      reportEmptyState.style.display = 'none';
       auditResultsContainer.classList.add('hidden');
+      auditResultsContainer.style.display = 'none';
       reportLoadingState.classList.remove('hidden');
+      reportLoadingState.style.display = 'flex';
       reportStatusTag.textContent = 'AUDITING...';
       reportStatusTag.className = 'report-status-tag status-tag-loading';
       reportActions.style.display = 'none';
@@ -242,13 +249,17 @@ document.addEventListener('DOMContentLoaded', () => {
       auditBtn.classList.remove('btn-loading');
       auditBtnText.textContent = 'Run Compliance Audit';
       reportLoadingState.classList.add('hidden');
+      reportLoadingState.style.display = 'none';
     }
   }
 
   function resetReportState() {
     reportEmptyState.classList.remove('hidden');
+    reportEmptyState.style.display = 'flex';
     auditResultsContainer.classList.add('hidden');
+    auditResultsContainer.style.display = 'none';
     reportLoadingState.classList.add('hidden');
+    reportLoadingState.style.display = 'none';
     reportStatusTag.textContent = 'STANDBY';
     reportStatusTag.className = 'report-status-tag';
     reportActions.style.display = 'none';
@@ -257,8 +268,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. Render Full Audit Report
   function renderAuditReport(verdict, originalInput) {
     reportEmptyState.classList.add('hidden');
+    reportEmptyState.style.display = 'none';
     reportLoadingState.classList.add('hidden');
+    reportLoadingState.style.display = 'none';
     auditResultsContainer.classList.remove('hidden');
+    auditResultsContainer.style.display = 'flex';
     reportActions.style.display = 'flex';
 
     const overall = (verdict.overall_verdict || 'REVISE').toUpperCase();

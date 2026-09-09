@@ -32,7 +32,7 @@ Always evaluate the submitted ad copy (Headline, Supporting Text, Call to Action
 
 ---
 
-## Dimension 2: Brand Tone (Minimalist Brand Philosophy)
+## Dimension 2: Brand Tone (Minimalist Brand Philosophy & Core Rules)
 
 ### Brand Philosophy & Citations
 - **Source: beminimalist.co/pages/our-values**:
@@ -40,6 +40,50 @@ Always evaluate the submitted ad copy (Headline, Supporting Text, Call to Action
   - *"There is lot of inaccurate advice & incorrect claims being made by beauty brands which results in fear mongering, misconceptions and eventually consumers making wrong decisions."*
   - *"Everything is a chemical – water is a chemical – therefore, chemical-free products don’t exist."*
   - *"We wanted to address this issue of lack of transparency through a range of products that are straightforward, honest and do what they claim to do. No unnecessary marketing fluff. And this is how Minimalist was born."*
+
+---
+
+### The 6 Core Minimalist Brand Rules (Derived from beminimalist.co site & packaging copy)
+
+The auditor must evaluate whether the creative satisfies these 6 derived brand rules alongside the legal regulatory checks:
+
+#### 1. Names Who It's For (Skin Type / Concern Target)
+- **Rule**: Ad copy must clearly state who the product is intended for—specifying the skin type, concern, or condition (e.g., *"For oily, acne-prone skin"*, *"For dry, dehydrated skin"*, *"For skin with post-acne blemishes"*).
+- **Prohibited**: Never make lazy, universal claims like *"for everyone"*, *"for all skin types"*, or *"suitable for anybody"*. Minimalist formulations target specific biological concerns.
+- **Citation**: Minimalist Product Positioning Architecture (`beminimalist.co/collections`).
+- **Severity**: Medium (Needs Revision if missing target audience or stating "for everyone").
+
+#### 2. Every Named Ingredient Comes with Its Function (No Name-Dropping)
+- **Rule**: Every single ingredient named in the copy must be accompanied by its functional role or mechanism of action (e.g., *"Niacinamide (Vitamin B3) to balance sebum secretion"*, *"Squalane to prevent trans-epidermal water loss without clogging pores"*, *"Provitamin D3 to fortify the barrier"*).
+- **Prohibited**: Vague, superficial marketing name-dropping (e.g., *"Enriched with Hyaluronic Acid, Cica, and Peptides"* without explaining what each active actually does).
+- **Citation**: Minimalist Education-First Philosophy (`beminimalist.co/pages/our-values`).
+- **Severity**: Medium (Needs Revision if ingredients are dropped without biological functions).
+
+#### 3. Claims Connect to Usage (When / How), No Free-Floating Outcomes
+- **Rule**: Product claims must be explicitly connected to actual usage instructions—explaining when or how to apply the formulation to achieve the benefit (e.g., *"Apply 2-3 drops daily in AM/PM routine after cleansing"*, *"Use consistently for 2-4 weeks alongside daily broad-spectrum SPF"*).
+- **Prohibited**: Disconnected, free-floating outcomes with no guidance on how or when the outcome is achieved (e.g., *"Wake up to radiant skin"* without usage instructions).
+- **Citation**: Minimalist Regimen Guidance Architecture (`beminimalist.co/pages/how-to-use`).
+- **Severity**: Low to Medium (Needs Revision if claims float without regimen context).
+
+#### 4. Explains the Mechanism ("Helps Fight Acne", Never "Will Remove")
+- **Rule**: Efficacy claims must explain the biological mechanism and use tempered, scientifically sound mechanism language (e.g., *"helps reduce the appearance of blemishes"*, *"supports cellular turnover to unclog pores"*, *"helps calm visible redness"*).
+- **Prohibited**: Deterministic or absolute eradication claims: *"will remove acne"*, *"erases wrinkles"*, *"destroys dark circles"*, *"permanently cures"*.
+- **Citation**: ASCI Code Ch. I.1 & Minimalist Science-First Lexicon.
+- **Severity**: High if using curative disease words ("cures", "treats"); Medium if deterministic ("will remove").
+
+#### 5. Efficacy Claims Must Be Quantified AND Sourced, Never Absolute Guarantees
+- **Rule**: Any efficacy or performance claim must be quantified and backed by a sourced study or panel (e.g., *"88% subjects noted reduced sebum secretion after 4 weeks in an independent clinical trial"*, *"Evaluated on 50 subjects in a dermatologist-led patch test"*).
+- **Prohibited**: Absolute guarantees (*"100% guaranteed"*, *"zero pores guaranteed"*) or unsourced, vague claims (*"proven by scientists"*, *"dramatically transforms skin"* without study parameters).
+- **Citation**: ASCI Code Chapter I.4 & Minimalist Clinical Study Architecture.
+- **Severity**: High if guaranteed outcome; Medium if unquantified or unsourced.
+
+#### 6. States What It Does NOT Contain (Transparency Runs Both Directions)
+- **Rule**: Formulations must explicitly disclose standard exclusions—transparency requires stating what is inside and what is left out (e.g., *"Fragrance-free • Essential oils-free • Dye-free • Parabens-free • Sulfates-free"*).
+- **Critical Distinction**: Exclusions must use recognized scientific cosmetic terms. **Never** use scaremongering pseudo-scientific phrases like *"100% Chemical-Free"* or *"Toxic-Free"* (everything is a chemical; water is a chemical).
+- **Citation**: Minimalist Packaging Architecture & `beminimalist.co/pages/our-values`.
+- **Severity**: Medium (Needs Revision if completely missing free-from transparency, or if using "chemical-free" fearmongering).
+
+---
 
 ### Brand Tone Requirements:
 1. **Education-First, Clinical, and Scientific**:
@@ -55,6 +99,7 @@ Always evaluate the submitted ad copy (Headline, Supporting Text, Call to Action
 
 ### Scoring Rules for Dimension 2:
 - If copy employs toxic/chemical scaremongering or fear-based persuasion: **Fail / High Severity**.
+- If copy violates the 6 Brand Rules (no skin type target, ingredient name-dropping without function, unquantified efficacy, no usage link, deterministic "will remove", or missing free-from transparency): **Needs Revision / Medium Severity**.
 - If copy uses generic beauty fluff ("radiant goddess", "magic potion", "poreless glass skin"): **Needs Revision / Medium Severity**.
 - If copy is educational, transparent, calm, and mechanism-focused: **Pass**.
 
@@ -68,15 +113,15 @@ Always evaluate the submitted ad copy (Headline, Supporting Text, Call to Action
   - Vague, generic claims like *"Packed with Niacinamide"*, *"Enriched with Retinol"*, or *"Secret Active Blend"* violate brand standards.
 - **Minimalist Brand Vocabulary**:
   - **Approved Brand Terms**:
-    - *Clinically proven, clinically tested, formulated with, balances sebum, accelerates cellular turnover, photostable, non-comedogenic, transparent formulations, 100% disclosed, dermatologically tested, patch tested, free-from, fragrance-free, essential oil free.*
+    - *Clinically proven, clinically tested, formulated with, balances sebum, accelerates cellular turnover, photostable, non-comedogenic, transparent formulations, 100% disclosed, dermatologically tested, patch tested, free-from, fragrance-free, essential oil free, sulfates-free.*
   - **Disapproved / Forbidden Terms**:
-    - *Chemical-free, 100% natural, toxic-free, miracle cure, magic formula, poreless perfection, flawless skin in 1 day, secret herbal recipe, doctor-invented miracle, holy grail, reverse aging.*
+    - *Chemical-free, 100% natural, toxic-free, miracle cure, magic formula, poreless perfection, flawless skin in 1 day, secret herbal recipe, doctor-invented miracle, holy grail, reverse aging, for everyone.*
 - **Call-to-Action (CTA) Convention**:
   - Standard Minimalist CTA is straightforward and navigational: e.g., *"Shop Now at beminimalist.co"*, *"Explore Formulations at beminimalist.co"*, *"Learn More at beminimalist.co"*.
 
 ### Scoring Rules for Dimension 3:
 - If copy uses prohibited vocabulary ("chemical-free", "100% natural", "miracle cure") or conceals active percentages: **Needs Revision or Fail / Medium or High Severity**.
-- If copy follows exact active + % format, uses clinical vocabulary, and includes clear CTA: **Pass**.
+- If copy follows exact active + % format, uses clinical vocabulary, adheres to transparency standards, and includes clear CTA: **Pass**.
 
 ---
 
