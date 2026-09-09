@@ -31,83 +31,121 @@
       <!-- Left Panel: Form Controls -->
       <section class="control-panel">
         <div class="panel-header">
-          <h2>Ad Creative Inputs</h2>
-          <p class="panel-subtitle">Configure all creative fields. Preview and export update instantly.</p>
+          <h2>Ad Creative Studio</h2>
+          <p class="panel-subtitle">Import product details directly from beminimalist.co or enter manually below.</p>
         </div>
 
-        <!-- Quick Test Presets -->
-        <div class="preset-section">
-          <label class="section-label">Authentic Minimalist Presets</label>
-          <div class="preset-chips">
-            {% for preset in presets %}
-            <button type="button" class="preset-chip" 
-                    data-name="{{ preset.name }}"
-                    data-active="{{ preset.active_ingredient }}"
-                    data-price="{{ preset.price }}"
-                    data-image="{{ preset.image_url }}"
-                    data-desc="{{ preset.description }}"
-                    data-free="{{ preset.free_from }}"
-                    data-cta="{{ preset.cta }}">
-              {{ preset.name }}
+        <!-- PRIMARY INPUT: Product URL -->
+        <div class="url-primary-section">
+          <div class="primary-tag-row">
+            <span class="badge-primary-input">PRIMARY INPUT</span>
+            <span class="url-subhint">Server-side extraction via certifi</span>
+          </div>
+
+          <label for="product-url" class="url-label">Minimalist Product Page URL</label>
+          <div class="url-input-container">
+            <div class="url-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <input type="url" id="product-url" class="url-text-input" 
+                   placeholder="https://beminimalist.co/products/retinol-0-6" 
+                   value="https://beminimalist.co/products/retinol-0-6"
+                   autocomplete="off">
+            <button type="button" id="fetch-url-btn" class="btn btn-fetch" title="Fetch product from beminimalist.co">
+              <svg class="fetch-spinner-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+              <svg class="fetch-normal-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span id="fetch-btn-label">Fetch Details</span>
             </button>
-            {% endfor %}
+          </div>
+
+          <!-- Status & Feedback Banner -->
+          <div id="fetch-status" class="fetch-status-banner" style="display: none;"></div>
+
+          <!-- Quick Test Live URLs -->
+          <div class="preset-section">
+            <label class="section-label">Live Minimalist Products (One-Click Fetch)</label>
+            <div class="preset-chips">
+              {% for preset in presets %}
+              <button type="button" class="preset-chip" 
+                      data-url="{{ preset.url }}"
+                      data-name="{{ preset.name }}"
+                      data-active="{{ preset.active_ingredient }}"
+                      data-price="{{ preset.price }}"
+                      data-image="{{ preset.image_url }}"
+                      data-desc="{{ preset.description }}"
+                      data-free="{{ preset.free_from }}"
+                      data-cta="{{ preset.cta }}">
+                {{ preset.name }}
+              </button>
+              {% endfor %}
+            </div>
           </div>
         </div>
 
-        <!-- Form -->
-        <form id="ad-form" class="ad-form">
-          <div class="form-group">
-            <label for="product-name">Product Name <span class="badge-hint">&rarr; Headline</span></label>
-            <input type="text" id="product-name" name="name" placeholder="e.g. Niacinamide 10% + Zinc 1%" required autocomplete="off">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="active-ingredient">Active Ingredient + %</label>
-              <input type="text" id="active-ingredient" name="active_ingredient" placeholder="e.g. Niacinamide 10% • Zinc PCA 1%" required autocomplete="off">
+        <!-- FALLBACK & MANUAL ENTRY FORM -->
+        <div class="manual-section-wrapper">
+          <div class="form-header-divider">
+            <div class="divider-title-row">
+              <span class="divider-title">Product Details</span>
+              <span class="divider-badge">Editable &bull; Manual Fallback</span>
             </div>
-            <div class="form-group width-price">
-              <label for="product-price">Price</label>
-              <input type="text" id="product-price" name="price" placeholder="e.g. ₹599 / 30ml" required autocomplete="off">
+            <p class="divider-desc">Pre-filled when URL fetch succeeds. Use as fallback if URL fetch fails or to customize ad copy.</p>
+          </div>
+
+          <form id="ad-form" class="ad-form">
+            <div class="form-group">
+              <label for="product-name">Product Name <span class="badge-hint">&rarr; Headline</span></label>
+              <input type="text" id="product-name" name="name" placeholder="e.g. Retinol 0.6% Face Serum" required autocomplete="off">
             </div>
-          </div>
 
-          <div class="form-group">
-            <label for="short-description">Short Description <span class="badge-hint">&rarr; Supporting Text</span></label>
-            <textarea id="short-description" name="description" rows="3" placeholder="Clinical benefits and outcomes..." required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="free-from">Free-From Claims <span class="badge-hint">&rarr; Clinical Badges</span></label>
-            <input type="text" id="free-from" name="free_from" placeholder="e.g. Fragrance Free • Non-Comedogenic • Essential Oil Free" required autocomplete="off">
-          </div>
-
-          <div class="form-group">
-            <label for="ad-cta">Call To Action (CTA)</label>
-            <input type="text" id="ad-cta" name="cta" placeholder="e.g. Shop Now at beminimalist.co" required autocomplete="off">
-          </div>
-
-          <!-- Product Image: URL + File Picker -->
-          <div class="form-group">
-            <label for="image-url">Product Image (URL or Local File)</label>
-            <div class="image-input-container">
-              <input type="text" id="image-url" name="image_url" placeholder="/static/images/niacinamide.jpg or https://..." required autocomplete="off">
-              <label class="file-upload-btn" title="Choose file from disk">
-                <input type="file" id="image-file" accept="image/*" style="display:none;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                <span>Upload</span>
-              </label>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="active-ingredient">Active Ingredient + %</label>
+                <input type="text" id="active-ingredient" name="active_ingredient" placeholder="e.g. Pure Retinol 0.6% • CoQ10" required autocomplete="off">
+              </div>
+              <div class="form-group width-price">
+                <label for="product-price">Price</label>
+                <input type="text" id="product-price" name="price" placeholder="e.g. ₹617 / 30ml" required autocomplete="off">
+              </div>
             </div>
-          </div>
 
-          <div class="form-actions">
-            <button type="submit" id="submit-btn" class="btn btn-primary">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              Update Ad Creative
-            </button>
-            <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
-          </div>
-        </form>
+            <div class="form-group">
+              <label for="short-description">Short Description <span class="badge-hint">&rarr; Supporting Text</span></label>
+              <textarea id="short-description" name="description" rows="3" placeholder="Clinical benefits and outcomes..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="free-from">Free-From Claims <span class="badge-hint">&rarr; Clinical Badges</span></label>
+              <input type="text" id="free-from" name="free_from" placeholder="e.g. Fragrance Free • Water Free • Essential Oil Free" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label for="ad-cta">Call To Action (CTA)</label>
+              <input type="text" id="ad-cta" name="cta" placeholder="e.g. Shop Now at beminimalist.co" required autocomplete="off">
+            </div>
+
+            <!-- Product Image: URL + File Picker -->
+            <div class="form-group">
+              <label for="image-url">Product Image (Real Photo URL or Local File)</label>
+              <div class="image-input-container">
+                <input type="text" id="image-url" name="image_url" placeholder="https://cdn.shopify.com/... or /static/images/..." required autocomplete="off">
+                <label class="file-upload-btn" title="Choose file from disk">
+                  <input type="file" id="image-file" accept="image/*" style="display:none;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                  <span>Upload</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="submit-btn" class="btn btn-primary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Update Ad Creative
+              </button>
+              <button type="button" id="reset-btn" class="btn btn-secondary">Reset Form</button>
+            </div>
+          </form>
+        </div>
       </section>
 
       <!-- Right Panel: Ad Canvas Preview -->
@@ -152,17 +190,17 @@
                 <!-- Active Ingredient Callout Badge -->
                 <div class="ad-active-badge">
                   <span class="badge-accent-dot"></span>
-                  <span id="ad-active-text">Niacinamide 10% • Zinc PCA 1%</span>
+                  <span id="ad-active-text">Pure Retinol 0.6% • CoQ10</span>
                 </div>
 
                 <!-- Headline -->
                 <h1 class="ad-headline-text" id="ad-headline-text">
-                  Niacinamide 10% + Zinc 1%
+                  Retinol 0.6% Face Serum
                 </h1>
 
                 <!-- Supporting Description -->
                 <p class="ad-description-text" id="ad-description-text">
-                  Clinically proven face serum that balances sebum secretion, minimizes enlarged pores, and clears dark blemishes for clean, resilient skin.
+                  Medium strength Retinol formula in pure squalane for fading fine lines, smoothing uneven texture, and promoting cellular turnover.
                 </p>
               </div>
 
@@ -171,15 +209,15 @@
                 <!-- Flanking Price Tag Pill -->
                 <div class="ad-price-pill">
                   <span class="price-prefix">ONLY</span>
-                  <span class="price-amount" id="ad-price-text">₹599 / 30ml</span>
+                  <span class="price-amount" id="ad-price-text">₹617 / 30ml</span>
                 </div>
 
                 <!-- Product Bottle with Realistic Contact Shadow -->
                 <div class="ad-bottle-wrapper">
                   <div class="ad-contact-shadow"></div>
                   <img id="ad-product-img" 
-                       src="/static/images/niacinamide.png" 
-                       alt="Minimalist Serum" 
+                       src="https://cdn.shopify.com/s/files/1/0410/9608/5665/files/Retinol_06_New.png?v=1721398129" 
+                       alt="Minimalist Product" 
                        crossorigin="anonymous">
                 </div>
 
@@ -192,7 +230,7 @@
 
               <!-- 4. Free-From Claims Clinical Banner -->
               <div class="ad-claims-strip" id="ad-claims-strip">
-                <span id="ad-claims-text">Fragrance Free • Non-Comedogenic • Essential Oil Free • Dye Free</span>
+                <span id="ad-claims-text">Fragrance Free • Water Free • Essential Oil Free • Non-Comedogenic</span>
               </div>
 
               <!-- 5. Bottom Footer & CTA Row -->

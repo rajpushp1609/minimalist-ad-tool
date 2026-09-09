@@ -1,7 +1,13 @@
 // Minimalist Ad Creative Studio - Frontend Controller
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Form Controls
+  // Primary URL Input Controls
+  const urlInput = document.getElementById('product-url');
+  const fetchUrlBtn = document.getElementById('fetch-url-btn');
+  const fetchStatus = document.getElementById('fetch-status');
+  const fetchBtnLabel = document.getElementById('fetch-btn-label');
+
+  // Manual & Fallback Form Controls
   const form = document.getElementById('ad-form');
   const nameInput = document.getElementById('product-name');
   const activeInput = document.getElementById('active-ingredient');
@@ -28,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const adCtaText = document.getElementById('ad-cta-text');
   const adImg = document.getElementById('ad-product-img');
 
-  const DEFAULT_IMG = "/static/images/niacinamide.png";
+  const DEFAULT_IMG = "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/Retinol_06_New.png?v=1721398129";
 
   // Auto-Scale 1080x1080 Canvas so it fits smoothly in preview viewport
   function updateCanvasScale() {
@@ -48,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Format Price Cleanly
   function formatPrice(val) {
-    if (!val) return '₹599 / 30ml';
+    if (!val) return '₹617 / 30ml';
     val = val.trim();
     if (!val.startsWith('₹') && !val.toLowerCase().startsWith('rs')) {
       return `₹${val}`;
@@ -58,11 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Render Ad Canvas strictly from inputs
   function renderAdCreative() {
-    const name = nameInput.value.trim() || 'Niacinamide 10% + Zinc 1%';
-    const active = activeInput.value.trim() || 'Niacinamide 10% • Zinc PCA 1%';
+    const name = nameInput.value.trim() || 'Retinol 0.6% Face Serum';
+    const active = activeInput.value.trim() || 'Pure Retinol 0.6% • CoQ10';
     const price = formatPrice(priceInput.value);
-    const desc = descInput.value.trim() || 'Clinically proven face serum that balances sebum secretion, minimizes enlarged pores, and clears dark blemishes.';
-    const freeFrom = freeFromInput.value.trim() || 'Fragrance Free • Non-Comedogenic • Essential Oil Free • Dye Free';
+    const desc = descInput.value.trim() || 'Medium strength Retinol formula in pure squalane for fading fine lines, smoothing uneven texture, and promoting cellular turnover.';
+    const freeFrom = freeFromInput.value.trim() || 'Fragrance Free • Water Free • Essential Oil Free • Non-Comedogenic';
     const cta = ctaInput.value.trim() || 'Shop Now at beminimalist.co';
     const imgUrl = imageInput.value.trim() || DEFAULT_IMG;
 
@@ -77,13 +83,110 @@ document.addEventListener('DOMContentLoaded', () => {
     if (imgUrl) {
       adImg.src = imgUrl;
       adImg.onerror = () => {
-        console.warn('Custom image failed to load, falling back to default Minimalist bottle.');
+        console.warn('Product image failed to load, falling back to default Minimalist product image.');
         adImg.src = DEFAULT_IMG;
       };
     }
   }
 
-  // Live updates on typing
+  // Display status feedback banner
+  function showStatusBanner(type, title, detail) {
+    if (!fetchStatus) return;
+    fetchStatus.style.display = 'block';
+    fetchStatus.className = `fetch-status-banner ${type}`;
+    fetchStatus.innerHTML = `
+      <div class="status-title">${title}</div>
+      ${detail ? `<div class="status-detail">${detail}</div>` : ''}
+    `;
+  }
+
+  function hideStatusBanner() {
+    if (!fetchStatus) return;
+    fetchStatus.style.display = 'none';
+  }
+
+  // Fetch product from backend server-side parser
+  async function fetchProductFromUrl(url) {
+    if (!url || !url.trim()) {
+      showStatusBanner('error', 'Please enter a product URL', 'Provide a valid beminimalist.co product page URL.');
+      return;
+    }
+
+    const trimmedUrl = url.trim();
+
+    // Set UI loading state
+    fetchUrlBtn.classList.add('loading');
+    if (fetchBtnLabel) fetchBtnLabel.textContent = 'Fetching...';
+    showStatusBanner('loading', 'Fetching from beminimalist.co...', 'Connecting to server and parsing product page server-side...');
+
+    try {
+      const resp = await fetch('/api/fetch-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: trimmedUrl })
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data.success && data.product) {
+        const prod = data.product;
+
+        // Auto-fill form fields
+        nameInput.value = prod.name || '';
+        activeInput.value = prod.active_ingredient || '';
+        priceInput.value = prod.price || '';
+        descInput.value = prod.description || '';
+        if (prod.free_from) freeFromInput.value = prod.free_from;
+        if (prod.cta) ctaInput.value = prod.cta;
+        if (prod.image_url) imageInput.value = prod.image_url;
+
+        // Update ad creative preview
+        renderAdCreative();
+
+        showStatusBanner('success', '✓ Product Details Loaded', `${prod.name} (${prod.price}) parsed server-side. Edit below if needed.`);
+      } else {
+        const errorReason = data.error || data.reason || 'Failed to fetch product';
+        console.error('Server-side product fetch failed:', errorReason, data);
+        showStatusBanner(
+          'error',
+          'Fetch Failed &bull; Use Manual Form Below',
+          `${errorReason}. You can enter and edit the product details manually in the form below.`
+        );
+        nameInput.focus();
+      }
+    } catch (err) {
+      console.error('Network or fetch error:', err);
+      showStatusBanner(
+        'error',
+        'Connection Error &bull; Use Manual Form Below',
+        `Could not contact server: ${err.message}. Manual entry is ready below.`
+      );
+      nameInput.focus();
+    } finally {
+      fetchUrlBtn.classList.remove('loading');
+      if (fetchBtnLabel) fetchBtnLabel.textContent = 'Fetch Details';
+    }
+  }
+
+  // Trigger fetch on button click or Enter key
+  if (fetchUrlBtn) {
+    fetchUrlBtn.addEventListener('click', () => {
+      fetchProductFromUrl(urlInput.value);
+    });
+  }
+
+  if (urlInput) {
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        fetchProductFromUrl(urlInput.value);
+      }
+    });
+  }
+
+  // Live updates on typing in manual form
   [nameInput, activeInput, priceInput, descInput, freeFromInput, ctaInput, imageInput].forEach(input => {
     input.addEventListener('input', renderAdCreative);
   });
@@ -103,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Form Submit
+  // Manual Form Submit
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     renderAdCreative();
@@ -125,6 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
       presetChips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
 
+      const presetUrl = chip.dataset.url || '';
+      if (presetUrl) {
+        urlInput.value = presetUrl;
+      }
+
       nameInput.value = chip.dataset.name || '';
       activeInput.value = chip.dataset.active || '';
       priceInput.value = chip.dataset.price || '';
@@ -134,11 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
       imageInput.value = chip.dataset.image || '';
 
       renderAdCreative();
+      showStatusBanner('success', `Loaded Preset: ${chip.dataset.name}`, 'You can click "Fetch Details" to re-fetch live from beminimalist.co or edit directly.');
     });
   });
 
   // Reset
   resetBtn.addEventListener('click', () => {
+    hideStatusBanner();
     if (presetChips.length > 0) {
       presetChips[0].click();
     } else {
@@ -147,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // High-Fidelity 1080x1080 Native PNG Export (No CSS Transform, White Background, No Black Area)
+  // High-Fidelity 1080x1080 Native PNG Export
   downloadBtn.addEventListener('click', async () => {
     const origBtnHtml = downloadBtn.innerHTML;
     downloadBtn.disabled = true;
@@ -215,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollY: 0,
         backgroundColor: '#ffffff',
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         imageTimeout: 15000,
         logging: false
       });
