@@ -7,6 +7,10 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import certifi
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
