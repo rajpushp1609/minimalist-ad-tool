@@ -12,13 +12,26 @@
 </head>
 <body>
   <div class="app-layout">
-    <!-- Top Bar -->
+    <!-- Top Bar with Dual-Surface Navigation -->
     <header class="app-header">
-      <div class="brand-badge">
-        <span class="brand-bracket">[</span>
-        <span class="brand-title">Minimalist</span>
-        <span class="brand-bracket">]</span>
-        <span class="app-tag">AD CREATIVE STUDIO</span>
+      <div class="header-brand-group">
+        <a href="/" class="brand-badge" style="text-decoration: none; color: inherit;">
+          <span class="brand-bracket">[</span>
+          <span class="brand-title">Minimalist</span>
+          <span class="brand-bracket">]</span>
+          <span class="app-tag">INTELLIGENCE</span>
+        </a>
+        <nav class="app-surface-nav">
+          <a href="/" class="surface-nav-item active" id="nav-studio">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span>Creative Studio</span>
+          </a>
+          <a href="/score" class="surface-nav-item" id="nav-scorer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Brand & Policy Scorer</span>
+            <span class="surface-badge">DeepSeek AI</span>
+          </a>
+        </nav>
       </div>
       <div class="header-status">
         <span class="status-indicator"></span>
@@ -162,6 +175,10 @@
             <span class="resolution-badge">1080 &times; 1080 PX</span>
           </div>
           <div class="preview-controls">
+            <button type="button" id="score-creative-btn" class="btn btn-score-creative" title="Audit this creative against Minimalist brand rules & Indian legal policy">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Score This Creative</span>
+            </button>
             <button type="button" id="download-btn" class="btn btn-export">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
               Export 1080x1080 PNG

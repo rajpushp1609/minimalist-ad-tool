@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Ad Scorer & Compliance Auditor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Bar with Dual-Surface Navigation -->
+    <header class="app-header">
+      <div class="header-brand-group">
+        <a href="/" class="brand-badge" style="text-decoration: none; color: inherit;">
+          <span class="brand-bracket">[</span>
+          <span class="brand-title">Minimalist</span>
+          <span class="brand-bracket">]</span>
+          <span class="app-tag">INTELLIGENCE</span>
+        </a>
+        <nav class="app-surface-nav">
+          <a href="/" class="surface-nav-item" id="nav-studio">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span>Creative Studio</span>
+          </a>
+          <a href="/score" class="surface-nav-item active" id="nav-scorer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Brand & Policy Scorer</span>
+            <span class="surface-badge">DeepSeek AI</span>
+          </a>
+        </nav>
+      </div>
+      <div class="header-status">
+        <span class="status-indicator status-audit"></span>
+        <span>Drugs & Cosmetics Rules 2020 &bull; ASCI Code &bull; beminimalist.co Rubric</span>
+      </div>
+    </header>
+
+    <!-- Scorer Workspace -->
+    <main class="scorer-workspace">
+      <!-- Left Panel: Input & Ad Copy Controls -->
+      <section class="scorer-control-panel">
+        <div class="panel-header">
+          <div class="badge-primary-input">SURFACE B &bull; AUDIT ENGINE</div>
+          <h2>Ad Compliance & Tone Scorer</h2>
+          <p class="panel-subtitle">Audit ad copy against Indian skincare legal standards (Drugs & Cosmetics Rules, ASCI) and Minimalist brand guidelines.</p>
+        </div>
+
+        <!-- Transferred Alert Banner (dynamically visible when imported from Studio) -->
+        <div id="transfer-alert" class="transfer-alert hidden">
+          <div class="transfer-alert-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="transfer-alert-text">
+            <strong>Creative Imported from Studio</strong>
+            <span>Active creative fields loaded. Click "Run Compliance Audit" below.</span>
+          </div>
+          <button type="button" id="dismiss-transfer" class="transfer-close-btn">&times;</button>
+        </div>
+
+        <!-- Sample Copy Quick-Loaders -->
+        <div class="form-section">
+          <label class="form-label">Test with Presets</label>
+          <div class="scorer-preset-chips">
+            <button type="button" class="sample-btn sample-compliant" id="btn-sample-compliant">
+              <span class="sample-dot dot-pass"></span>
+              <span>Compliant Minimalist Copy</span>
+            </button>
+            <button type="button" class="sample-btn sample-violation" id="btn-sample-violation">
+              <span class="sample-dot dot-fail"></span>
+              <span>High-Risk Policy Violation</span>
+            </button>
+            <button type="button" class="sample-btn sample-fluff" id="btn-sample-fluff">
+              <span class="sample-dot dot-warn"></span>
+              <span>Hyperbolic Tone & Fluff</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Input Mode Tabs -->
+        <div class="scorer-input-tabs">
+          <button type="button" class="input-tab active" id="tab-paste-mode">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            <span>Raw Copy Paste Box</span>
+          </button>
+          <button type="button" class="input-tab" id="tab-structured-mode">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span>Structured Creative Fields</span>
+          </button>
+        </div>
+
+        <form id="scorer-form">
+          <!-- RAW PASTE CONTAINER -->
+          <div id="paste-container" class="input-container-block">
+            <label for="raw-copy-input" class="form-label">
+              Paste Any Ad Copy (Headline, Body, CTA)
+              <span class="label-hint">Paste full creative copy to audit external ads</span>
+            </label>
+            <textarea id="raw-copy-input" class="form-textarea scorer-paste-box" rows="9" 
+                      placeholder="e.g.&#10;Headline: 10% Niacinamide Face Serum&#10;Active Ingredient: Niacinamide 10%&#10;Supporting Text: Formulated with pure Niacinamide to balance excess sebum and reduce the appearance of blemishes in 2-4 weeks.&#10;CTA: Shop Now at beminimalist.co"></textarea>
+          </div>
+
+          <!-- STRUCTURED FIELDS CONTAINER -->
+          <div id="structured-container" class="input-container-block hidden">
+            <div class="form-group">
+              <label for="score-headline" class="form-label">Headline / Product Title</label>
+              <input type="text" id="score-headline" class="form-input" placeholder="e.g. Provitamin D3 Massage Oil">
+            </div>
+
+            <div class="form-group">
+              <label for="score-active" class="form-label">Active Ingredient + Concentration %</label>
+              <input type="text" id="score-active" class="form-input" placeholder="e.g. Provitamin D3 or Niacinamide 10%">
+            </div>
+
+            <div class="form-group">
+              <label for="score-supporting" class="form-label">Supporting Text / Mechanism Description</label>
+              <textarea id="score-supporting" class="form-textarea" rows="3" placeholder="Clinical description of benefits, ingredients and biological mechanism..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="score-freefrom" class="form-label">Free-From Claims</label>
+                <input type="text" id="score-freefrom" class="form-input" placeholder="e.g. Fragrance Free • Sulfates Free">
+              </div>
+              <div class="form-group">
+                <label for="score-tested" class="form-label">Clinical / Tested Claims</label>
+                <input type="text" id="score-tested" class="form-input" placeholder="e.g. Tested on 50 subjects for safety">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="score-cta" class="form-label">Call To Action (CTA)</label>
+              <input type="text" id="score-cta" class="form-input" placeholder="e.g. Shop Now at beminimalist.co">
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions scorer-actions">
+            <button type="submit" id="audit-btn" class="btn btn-primary btn-audit">
+              <svg class="audit-spinner-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+              <svg class="audit-normal-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              <span id="audit-btn-text">Run Compliance Audit</span>
+            </button>
+            <button type="button" id="clear-score-btn" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+
+        <!-- Rubric Legend Box -->
+        <div class="rubric-summary-card">
+          <div class="rubric-summary-header">
+            <span class="rubric-title">Committed Rubric Standard</span>
+            <span class="rubric-code">prompts/scorer_rubric.md</span>
+          </div>
+          <div class="rubric-pills">
+            <div class="rubric-pill">
+              <strong>Dim 1: Policy & Claims</strong>
+              <span>Drugs & Cosmetics 1940 / 2020 Rules &bull; ASCI Code Ch. I</span>
+            </div>
+            <div class="rubric-pill">
+              <strong>Dim 2: Brand Tone</strong>
+              <span>Anti-fearmongering &bull; Zero chemical toxins scare &bull; No beauty fluff</span>
+            </div>
+            <div class="rubric-pill">
+              <strong>Dim 3: Brand Language</strong>
+              <span>[Active %] standard &bull; Transparent syntax &bull; Mechanism of action</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel: Audit Report & Verdict -->
+      <section class="scorer-report-panel">
+        <div class="report-header">
+          <div class="report-title-wrap">
+            <h2>Audit Report & Verdict</h2>
+            <span class="report-status-tag" id="report-status-tag">STANDBY</span>
+          </div>
+          <div class="report-actions" id="report-actions" style="display: none;">
+            <button type="button" id="copy-suggested-btn" class="btn btn-export-small">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy Compliant Copy</span>
+            </button>
+            <button type="button" id="apply-to-studio-btn" class="btn btn-export-small btn-highlight">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Send to Studio</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Report Viewport -->
+        <div class="report-viewport" id="report-viewport">
+          <!-- Standby Empty State -->
+          <div class="report-empty-state" id="report-empty-state">
+            <div class="empty-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3>Ready for Brand & Policy Evaluation</h3>
+            <p>Paste any ad copy on the left, or score a creative generated in the Studio. The auditor evaluates against the legal skincare standards of India and the Minimalist brand philosophy.</p>
+            <div class="empty-features-grid">
+              <div class="empty-feature">
+                <span class="feat-badge badge-high">LEGAL AUDIT</span>
+                <strong>Drugs & Cosmetics Act</strong>
+                <span>Identifies illegal curative disease claims & medical treatments.</span>
+              </div>
+              <div class="empty-feature">
+                <span class="feat-badge badge-med">TRUTHFULNESS</span>
+                <strong>ASCI Guidelines</strong>
+                <span>Catches unbacked "clinically proven" & miracle speed claims.</span>
+              </div>
+              <div class="empty-feature">
+                <span class="feat-badge badge-pass">BRAND PHILOSOPHY</span>
+                <strong>Minimalist Values</strong>
+                <span>Rejects fear-based chemical scares and flowery beauty clichés.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State Indicator -->
+          <div class="report-loading-state hidden" id="report-loading-state">
+            <div class="audit-pulse-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+            </div>
+            <h3 id="loading-step-title">Evaluating Ad Copy against Legal Standards...</h3>
+            <p id="loading-step-desc">DeepSeek is examining claims under Indian Cosmetics Rules 2020 and ASCI Code Chapter I.</p>
+            <div class="loading-progress-bar">
+              <div class="loading-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Active Audit Results Container -->
+          <div class="audit-results-container hidden" id="audit-results-container">
+            <!-- Overall Verdict Banner -->
+            <div class="overall-verdict-banner" id="verdict-banner">
+              <div class="verdict-main-row">
+                <div class="verdict-badge-box">
+                  <span class="verdict-pre">OVERALL VERDICT</span>
+                  <div class="verdict-tag-pill" id="verdict-tag-pill">PUBLISH</div>
+                </div>
+                <div class="verdict-summary-box">
+                  <h3 id="verdict-summary-heading">Ad Approved for Minimalist Publishing</h3>
+                  <p id="verdict-summary-text">Copy adheres to Indian cosmetic regulations and aligns with Minimalist scientific tone.</p>
+                </div>
+              </div>
+              <div class="verdict-metrics-strip" id="verdict-metrics-strip">
+                <!-- Dynamically filled with flag badges -->
+              </div>
+            </div>
+
+            <!-- Dimension 1: Policy & Claims -->
+            <div class="dimension-card" id="card-dim1">
+              <div class="dim-card-header">
+                <div class="dim-title-group">
+                  <span class="dim-number">01</span>
+                  <div>
+                    <h4 class="dim-title">Policy & Claims</h4>
+                    <span class="dim-subtitle">Drugs & Cosmetics Rules 2020 &bull; ASCI Code (Truth in Advertising)</span>
+                  </div>
+                </div>
+                <div class="dim-verdict-pill" id="dim1-verdict-pill">PASS</div>
+              </div>
+              <div class="dim-card-body" id="dim1-body">
+                <!-- Spans & fixes injected by JS -->
+              </div>
+            </div>
+
+            <!-- Dimension 2: Brand Tone -->
+            <div class="dimension-card" id="card-dim2">
+              <div class="dim-card-header">
+                <div class="dim-title-group">
+                  <span class="dim-number">02</span>
+                  <div>
+                    <h4 class="dim-title">Brand Tone</h4>
+                    <span class="dim-subtitle">beminimalist.co Values &bull; Anti-Fearmongering &bull; Scientific Transparency</span>
+                  </div>
+                </div>
+                <div class="dim-verdict-pill" id="dim2-verdict-pill">PASS</div>
+              </div>
+              <div class="dim-card-body" id="dim2-body">
+                <!-- Spans & fixes injected by JS -->
+              </div>
+            </div>
+
+            <!-- Dimension 3: Brand Language -->
+            <div class="dimension-card" id="card-dim3">
+              <div class="dim-card-header">
+                <div class="dim-title-group">
+                  <span class="dim-number">03</span>
+                  <div>
+                    <h4 class="dim-title">Brand Language & Formatting</h4>
+                    <span class="dim-subtitle">Active % Syntax &bull; Clinical Vocabulary &bull; Mechanism of Action</span>
+                  </div>
+                </div>
+                <div class="dim-verdict-pill" id="dim3-verdict-pill">PASS</div>
+              </div>
+              <div class="dim-card-body" id="dim3-body">
+                <!-- Spans & fixes injected by JS -->
+              </div>
+            </div>
+
+            <!-- Compliant Suggested Copy Output Block -->
+            <div class="suggested-copy-card" id="suggested-copy-card" style="display: none;">
+              <div class="suggested-copy-header">
+                <div class="suggested-copy-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  <span>Recommended Fully Compliant Ad Copy</span>
+                </div>
+                <button type="button" id="copy-btn-inside" class="copy-text-btn">Copy Text</button>
+              </div>
+              <pre class="suggested-copy-text" id="suggested-copy-text"></pre>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/scorer.js') }}"></script>
+</body>
+</html>

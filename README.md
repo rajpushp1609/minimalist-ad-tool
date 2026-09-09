@@ -45,9 +45,46 @@ Paste any `beminimalist.co` product URL → the backend fetches and parses produ
 
 ---
 
+## Surface B: Brand & Compliance Scorer (`/score`)
+
+A dedicated compliance audit and brand guardian surface powered by **DeepSeek AI** and the committed rubric at [`prompts/scorer_rubric.md`](prompts/scorer_rubric.md).
+
+### Dual-Surface Navigation & Interoperability
+- **Header Tabs**: Switch seamlessly between **Creative Studio** (`/`) and **Brand & Policy Scorer** (`/score`).
+- **"Score This Creative" Button**: Located right above the 1080×1080 canvas preview in the Studio. In one click, it transfers the current creative's headline, active ingredient, description, claims, and CTA into the Scorer and triggers an audit.
+- **"Send to Studio" Button**: After an audit recommends compliant rewrites, one click loads the approved copy back into the Studio canvas.
+- **Raw Copy Paste Box**: Paste raw headline, body, and CTA copy from any external ad to audit ads not generated here.
+- **Preset Test Cases**:
+  - **Compliant Minimalist Copy**: Fully passes all dimensions (`PUBLISH`).
+  - **High-Risk Policy Violation**: Tests curative disease claims, unbacked clinical tests, and toxic chemical scaremongering (`BLOCK`).
+  - **Hyperbolic Tone & Fluff**: Tests generic beauty clichés ("goddess glow", "poreless glass skin", "magic potion") (`NEEDS REVISION`).
+
+### The 3 Audit Dimensions
+1. **Policy & Claims (Indian Legal Standards)**:
+   - **Drugs & Cosmetics Act, 1940 & Cosmetics Rules, 2020**: Strictly flags curative disease claims ("cure acne", "treat eczema", "heals psoriasis"). Cosmetics can only claim cosmetic appearance benefits.
+   - **ASCI Code Chapter I (Truth in Advertising)**: Flags unsubstantiated "clinically proven" claims lacking study duration, volunteer counts, or certified labs. Flags miracle/overnight guaranteed transformations.
+2. **Brand Tone (Minimalist Brand Philosophy)**:
+   - **Source: `beminimalist.co/pages/our-values`**:
+   - Zero fear-based marketing (prohibits "toxic chemicals", "chemical-free", "detox dirty skincare").
+   - Education-first, clinical, and transparent. Rejects hyperbolic fairy-tale beauty clichés.
+3. **Brand Language & Formatting**:
+   - Requires the **[Active Ingredient + Concentration %]** format (e.g. `Niacinamide 10%`, `Salicylic Acid 2%`).
+   - Validates transparent mechanism descriptions and approved vs disapproved vocabulary.
+
+### Audit Output
+- **Overall Verdict**: `PUBLISH` (Green) | `NEEDS REVISION` (Amber) | `BLOCK` (Red)
+- **Dimension Verdicts**: `Pass` | `Needs Revision` | `Fail`
+- **Quoted Flagged Spans**: Exact substrings identified in the ad copy.
+- **Severity Tags**: `High` | `Medium` | `Low`
+- **Legal & Brand Citations**: Explicit rule references.
+- **Actionable Suggested Fixes**: Compliant alternative wording.
+
+---
+
 ## Tech Stack
 
-- **Backend**: Python 3, Flask 3.1, `requests`, `certifi`, `beautifulsoup4`
+- **Backend**: Python 3, Flask 3.1, `requests`, `certifi`, `beautifulsoup4`, `python-dotenv`
+- **AI Audit Engine**: DeepSeek Chat Completions API (`deepseek-chat`) with structured JSON schema
 - **Frontend**: Vanilla JavaScript (ES6+), Modern Semantic HTML5, Custom CSS Design System
 - **Export Engine**: `html2canvas` with unscaled off-screen DOM clone
 
@@ -61,24 +98,28 @@ git clone https://github.com/rajpushp1609/minimalist-ad-tool.git
 cd minimalist-ad-tool
 ```
 
-### 2. Set Up Virtual Environment & Dependencies
+### 2. Virtual Environment & Dependencies
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run the Flask App
+### 3. Configure Environment Variables
+Create a `.env` file in the root directory (already gitignored):
 ```bash
-python app.py
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+PORT=5001
 ```
-Or specify a custom port:
+
+### 4. Run the Flask App
 ```bash
 PORT=5001 python app.py
 ```
 
-### 4. Open in Browser
-Visit **http://127.0.0.1:5001/** in your browser.
+### 5. Access Surfaces in Browser
+- **Creative Studio**: `http://127.0.0.1:5001/`
+- **Brand & Compliance Scorer**: `http://127.0.0.1:5001/score`
 
 ---
 
@@ -94,30 +135,46 @@ Fetches and parses a `beminimalist.co` product page server-side.
 }
 ```
 
+---
+
+### `POST /api/score-ad`
+Scores ad copy against the Minimalist Brand & Indian Skincare Regulatory Rubric via DeepSeek.
+
+**Request Body (Structured or Raw Paste):**
+```json
+{
+  "headline": "Niacinamide 10% Face Serum",
+  "active_ingredient": "Niacinamide 10%",
+  "supporting_text": "Formulated with pure Niacinamide to balance excess sebum secretion and reduce the appearance of blemishes.",
+  "cta": "Shop Now at beminimalist.co"
+}
+```
+
 **Success Response (200 OK):**
 ```json
 {
   "success": true,
-  "product": {
-    "name": "Provitamin D3 Massage Oil",
-    "active_ingredient": "Provitamin D3",
-    "price": "₹569",
-    "description": "This gentle Massage Oil is crafted with nourishing Coconut, Sunflower, Safflower, and Almond Oils, enriched with Provitamin D3...",
-    "free_from": "Fragrance Free • Sulfates Free • Essential Oils Free • Mineral Oil Free • Dyes Free • Parabens Free",
-    "tested_for": "Proven Safe: Clinically Tested to be Hypoallergenic, Non-Comedogenic, Sensitive skin safe, Pediatrician-approved & Kind to Biome Certified, this oil is clinically validated for safety.",
-    "image_url": "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/MassageOilNew.png?v=1721398127",
-    "cta": "Shop Now at beminimalist.co",
-    "url": "https://beminimalist.co/products/pediatrics-provitamin-d3-massage-oil"
+  "verdict": {
+    "overall_verdict": "Publish",
+    "overall_summary": "Ad copy strictly adheres to cosmetic benefit claims and Minimalist scientific brand standards.",
+    "dimensions": {
+      "policy_claims": {
+        "dimension_name": "Policy & Claims (Drugs & Cosmetics Rules / ASCI)",
+        "verdict": "Pass",
+        "flags": []
+      },
+      "brand_tone": {
+        "dimension_name": "Brand Tone (Education-First & Anti-Fearmongering)",
+        "verdict": "Pass",
+        "flags": []
+      },
+      "brand_language": {
+        "dimension_name": "Brand Language & Formatting (Active %, Vocabulary)",
+        "verdict": "Pass",
+        "flags": []
+      }
+    }
   }
-}
-```
-
-**Error Response (400 Bad Request):**
-```json
-{
-  "success": false,
-  "error": "HTTP 404 (Not Found) when fetching product page",
-  "reason": "Server-side fetch error: HTTP 404 (Not Found) when fetching product page"
 }
 ```
 
@@ -126,20 +183,24 @@ Fetches and parses a `beminimalist.co` product page server-side.
 ## Project Structure
 
 ```
-├── app.py                  # Flask backend: server-side scraping, certifi SSL, error logging, APIs
-├── requirements.txt        # Flask, requests, beautifulsoup4, certifi, Pillow
+├── app.py                  # Flask backend: scraping, certifi SSL, /score routes, DeepSeek audit API
+├── prompts/
+│   └── scorer_rubric.md    # Committed brand & regulatory rubric (Drugs & Cosmetics, ASCI, beminimalist.co)
+├── requirements.txt        # Flask, requests, beautifulsoup4, certifi, python-dotenv, Pillow
 ├── templates/
-│   ├── index.html          # Main studio workspace (Primary URL input, manual fallback form, canvas)
+│   ├── index.html          # Creative Studio workspace (URL input, manual form, 1080x1080 canvas)
+│   ├── score.html          # Brand & Policy Scorer surface (paste box, structured inputs, audit report)
 │   ├── export.html         # Isolated 1080×1080 export view for headless verification
 │   └── test_export.html    # Standalone export test view
 ├── static/
 │   ├── css/
-│   │   └── style.css       # Studio design system, responsive layout, 1080×1080 canvas styling
+│   │   └── style.css       # Unified design system for Studio and Scorer surfaces
 │   ├── js/
-│   │   └── app.js          # Controller: URL fetch, live canvas rendering, manual form binding, PNG export
+│   │   ├── app.js          # Studio controller: URL fetch, canvas rendering, transfer to /score
+│   │   └── scorer.js       # Scorer controller: presets, DeepSeek audit rendering, transfer to Studio
 │   └── images/             # Local asset fallbacks
-├── .gitignore              # Ignores venv, pycache, scratch artifacts
-└── README.md               # Project documentation
+├── .gitignore              # Strictly ignores .env, venv, pycache, scratch files
+└── README.md               # Comprehensive documentation
 ```
 
 ---
@@ -147,3 +208,4 @@ Fetches and parses a `beminimalist.co` product page server-side.
 ## License
 
 Internal tool for Minimalist — not for public distribution.
+

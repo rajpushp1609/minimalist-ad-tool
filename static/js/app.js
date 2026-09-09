@@ -420,11 +420,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Initialize with the first preset
-  if (presetChips.length > 0) {
-    presetChips[0].click();
-  } else {
-    renderAdCreative();
+  // Wire up "Score this creative" button
+  const scoreCreativeBtn = document.getElementById('score-creative-btn');
+  if (scoreCreativeBtn) {
+    scoreCreativeBtn.addEventListener('click', () => {
+      const creativePayload = {
+        headline: (nameInput.value || '').trim(),
+        active_ingredient: (activeInput.value || '').trim(),
+        supporting_text: (descInput.value || '').trim(),
+        free_from: (freeFromInput.value || '').trim(),
+        tested_for: (testedInput.value || '').trim(),
+        cta: (ctaInput.value || '').trim(),
+        auto_score: true
+      };
+      try {
+        sessionStorage.setItem('minimalist_score_transfer', JSON.stringify(creativePayload));
+      } catch (e) {
+        console.warn('SessionStorage write failed:', e);
+      }
+      window.location.href = '/score';
+    });
+  }
+
+  // Check if compliant copy was transferred from the Scorer
+  let hasTransferredCompliant = false;
+  try {
+    const compliantRaw = sessionStorage.getItem('minimalist_compliant_transfer');
+    if (compliantRaw) {
+      const cData = JSON.parse(compliantRaw);
+      sessionStorage.removeItem('minimalist_compliant_transfer');
+      if (cData.headline) nameInput.value = cData.headline;
+      if (cData.active_ingredient) activeInput.value = cData.active_ingredient;
+      if (cData.supporting_text) descInput.value = cData.supporting_text;
+      if (cData.free_from) freeFromInput.value = cData.free_from;
+      if (cData.tested_for) testedInput.value = cData.tested_for;
+      if (cData.cta) ctaInput.value = cData.cta;
+      hasTransferredCompliant = true;
+      renderAdCreative();
+    }
+  } catch (e) {
+    console.warn('Could not read transferred compliant copy:', e);
+  }
+
+  // Initialize with the first preset if no transferred data
+  if (!hasTransferredCompliant) {
+    if (presetChips.length > 0) {
+      presetChips[0].click();
+    } else {
+      renderAdCreative();
+    }
   }
 
   updateCanvasScale();

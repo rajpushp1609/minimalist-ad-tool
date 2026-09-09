@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import certifi
 from bs4 import BeautifulSoup
+import json
 from dotenv import load_dotenv
 
 # Load environment variables from .env
@@ -397,6 +398,140 @@ def canvas_export():
 def test_export():
     return render_template('test_export.html')
 
+def load_scorer_rubric():
+    """Load the committed brand & compliance rubric markdown."""
+    rubric_path = os.path.join(os.path.dirname(__file__), "prompts", "scorer_rubric.md")
+    with open(rubric_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.route('/score')
+def score_page():
+    """Render the Brand & Compliance Scorer surface."""
+    return render_template('score.html')
+
+@app.route('/api/score-ad', methods=['POST'])
+def api_score_ad():
+    """Score ad copy against Minimalist Brand & Indian Regulatory Rubric via DeepSeek."""
+    req_json = request.get_json(silent=True) or {}
+    
+    # Check if raw paste or structured fields provided
+    raw_text = req_json.get("ad_text", "").strip()
+    headline = req_json.get("headline", "").strip()
+    active_ingredient = req_json.get("active_ingredient", "").strip()
+    supporting_text = req_json.get("supporting_text", "").strip()
+    free_from = req_json.get("free_from", "").strip()
+    tested_for = req_json.get("tested_for", "").strip()
+    cta = req_json.get("cta", "").strip()
+
+    if raw_text:
+        copy_to_score = raw_text
+    else:
+        parts = []
+        if headline:
+            parts.append(f"Headline: {headline}")
+        if active_ingredient:
+            parts.append(f"Active Ingredient: {active_ingredient}")
+        if supporting_text:
+            parts.append(f"Supporting Text: {supporting_text}")
+        if free_from:
+            parts.append(f"Free-From Claims: {free_from}")
+        if tested_for:
+            parts.append(f"Tested-For / Clinical Validation: {tested_for}")
+        if cta:
+            parts.append(f"CTA: {cta}")
+        copy_to_score = "\n".join(parts)
+
+    if not copy_to_score.strip():
+        return jsonify({
+            "success": False,
+            "error": "No ad copy provided to score. Please paste ad copy or fill the creative fields."
+        }), 400
+
+    api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    if not api_key:
+        logger.error("DEEPSEEK_API_KEY is not set in environment or .env file.")
+        return jsonify({
+            "success": False,
+            "error": "DeepSeek API key is not configured. Please set DEEPSEEK_API_KEY in .env."
+        }), 500
+
+    try:
+        rubric_content = load_scorer_rubric()
+    except Exception as e:
+        logger.error("Failed to read prompts/scorer_rubric.md: %s", str(e))
+        return jsonify({
+            "success": False,
+            "error": f"Failed to load scoring rubric: {str(e)}"
+        }), 500
+
+    system_prompt = rubric_content
+    user_prompt = (
+        "Please evaluate the following ad creative copy according to the Minimalist Brand & Regulatory Compliance Rubric:\n\n"
+        "```text\n"
+        f"{copy_to_score}\n"
+        "```\n\n"
+        "Return the strict JSON evaluation schema specified in the rubric."
+    )
+
+    try:
+        logger.info("Sending ad copy to DeepSeek API for brand & compliance audit...")
+        resp = requests.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "deepseek-chat",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.1
+            },
+            timeout=60
+        )
+
+        if resp.status_code != 200:
+            logger.error("DeepSeek API error %s: %s", resp.status_code, resp.text)
+            return jsonify({
+                "success": False,
+                "error": f"DeepSeek API returned error HTTP {resp.status_code}: {resp.text}"
+            }), 502
+
+        data = resp.json()
+        raw_content = data["choices"][0]["message"]["content"]
+        verdict_data = json.loads(raw_content)
+
+        logger.info("DeepSeek successfully audited ad. Overall Verdict: %s", verdict_data.get("overall_verdict"))
+        return jsonify({
+            "success": True,
+            "verdict": verdict_data,
+            "scored_copy": copy_to_score
+        })
+
+    except requests.exceptions.Timeout:
+        logger.error("DeepSeek API request timed out after 60 seconds.")
+        return jsonify({
+            "success": False,
+            "error": "DeepSeek API request timed out. Please try again."
+        }), 504
+    except json.JSONDecodeError as jde:
+        logger.error("Failed to parse JSON response from DeepSeek: %s\nContent was: %s", str(jde), raw_content)
+        return jsonify({
+            "success": False,
+            "error": f"Failed to parse LLM evaluation JSON: {str(jde)}",
+            "raw_output": raw_content
+        }), 500
+    except Exception as e:
+        logger.error("Unexpected error during ad scoring: %s", str(e), exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": f"Scoring service error: {str(e)}"
+        }), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5001))
     app.run(host='0.0.0.0', port=port, debug=True)
+
