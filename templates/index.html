@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Ad Creative Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Bar -->
+    <header class="app-header">
+      <div class="brand-badge">
+        <span class="brand-bracket">[</span>
+        <span class="brand-title">Minimalist</span>
+        <span class="brand-bracket">]</span>
+        <span class="app-tag">AD CREATIVE STUDIO</span>
+      </div>
+      <div class="header-status">
+        <span class="status-indicator"></span>
+        <span>1080 &times; 1080 True Square Engine</span>
+      </div>
+    </header>
+
+    <!-- Workspace -->
+    <main class="workspace">
+      <!-- Left Panel: Form Controls -->
+      <section class="control-panel">
+        <div class="panel-header">
+          <h2>Ad Creative Inputs</h2>
+          <p class="panel-subtitle">Configure all creative fields. Preview and export update instantly.</p>
+        </div>
+
+        <!-- Quick Test Presets -->
+        <div class="preset-section">
+          <label class="section-label">Authentic Minimalist Presets</label>
+          <div class="preset-chips">
+            {% for preset in presets %}
+            <button type="button" class="preset-chip" 
+                    data-name="{{ preset.name }}"
+                    data-active="{{ preset.active_ingredient }}"
+                    data-price="{{ preset.price }}"
+                    data-image="{{ preset.image_url }}"
+                    data-desc="{{ preset.description }}"
+                    data-free="{{ preset.free_from }}"
+                    data-cta="{{ preset.cta }}">
+              {{ preset.name }}
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form id="ad-form" class="ad-form">
+          <div class="form-group">
+            <label for="product-name">Product Name <span class="badge-hint">&rarr; Headline</span></label>
+            <input type="text" id="product-name" name="name" placeholder="e.g. Niacinamide 10% + Zinc 1%" required autocomplete="off">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="active-ingredient">Active Ingredient + %</label>
+              <input type="text" id="active-ingredient" name="active_ingredient" placeholder="e.g. Niacinamide 10% • Zinc PCA 1%" required autocomplete="off">
+            </div>
+            <div class="form-group width-price">
+              <label for="product-price">Price</label>
+              <input type="text" id="product-price" name="price" placeholder="e.g. ₹599 / 30ml" required autocomplete="off">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="short-description">Short Description <span class="badge-hint">&rarr; Supporting Text</span></label>
+            <textarea id="short-description" name="description" rows="3" placeholder="Clinical benefits and outcomes..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="free-from">Free-From Claims <span class="badge-hint">&rarr; Clinical Badges</span></label>
+            <input type="text" id="free-from" name="free_from" placeholder="e.g. Fragrance Free • Non-Comedogenic • Essential Oil Free" required autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label for="ad-cta">Call To Action (CTA)</label>
+            <input type="text" id="ad-cta" name="cta" placeholder="e.g. Shop Now at beminimalist.co" required autocomplete="off">
+          </div>
+
+          <!-- Product Image: URL + File Picker -->
+          <div class="form-group">
+            <label for="image-url">Product Image (URL or Local File)</label>
+            <div class="image-input-container">
+              <input type="text" id="image-url" name="image_url" placeholder="/static/images/niacinamide.jpg or https://..." required autocomplete="off">
+              <label class="file-upload-btn" title="Choose file from disk">
+                <input type="file" id="image-file" accept="image/*" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                <span>Upload</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-btn" class="btn btn-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Update Ad Creative
+            </button>
+            <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Panel: Ad Canvas Preview -->
+      <section class="preview-panel">
+        <div class="preview-header">
+          <div class="preview-title-wrap">
+            <h2>Live 1080 &times; 1080 Creative</h2>
+            <span class="resolution-badge">1080 &times; 1080 PX</span>
+          </div>
+          <div class="preview-controls">
+            <button type="button" id="download-btn" class="btn btn-export">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export 1080x1080 PNG
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Viewport -->
+        <div class="canvas-viewport" id="canvas-viewport">
+          <!-- The wrapper scales dynamically to fit browser screen -->
+          <div class="ad-creative-wrapper" id="ad-wrapper">
+            <!-- The Native 1080x1080 Creative Canvas (Pure White Background, Zero Dead Space) -->
+            <div class="ad-creative" id="ad-creative">
+              
+              <!-- 1. Brand Header -->
+              <header class="ad-top-bar">
+                <div class="ad-brand-row">
+                  <div class="ad-brand-mark">
+                    <span class="ad-bracket">[</span>
+                    <span class="ad-name">Minimalist</span>
+                    <span class="ad-bracket">]</span>
+                  </div>
+                  <div class="ad-tagline">
+                    TRANSPARENT FORMULATIONS &bull; CLINICALLY PROVEN
+                  </div>
+                </div>
+                <div class="ad-rule-line"></div>
+              </header>
+
+              <!-- 2. Typography & Messaging (Headline, Ingredient, Supporting text) -->
+              <div class="ad-messaging-block">
+                <!-- Active Ingredient Callout Badge -->
+                <div class="ad-active-badge">
+                  <span class="badge-accent-dot"></span>
+                  <span id="ad-active-text">Niacinamide 10% • Zinc PCA 1%</span>
+                </div>
+
+                <!-- Headline -->
+                <h1 class="ad-headline-text" id="ad-headline-text">
+                  Niacinamide 10% + Zinc 1%
+                </h1>
+
+                <!-- Supporting Description -->
+                <p class="ad-description-text" id="ad-description-text">
+                  Clinically proven face serum that balances sebum secretion, minimizes enlarged pores, and clears dark blemishes for clean, resilient skin.
+                </p>
+              </div>
+
+              <!-- 3. Centered Hero Product Section with Soft Contact Shadow -->
+              <div class="ad-hero-container">
+                <!-- Flanking Price Tag Pill -->
+                <div class="ad-price-pill">
+                  <span class="price-prefix">ONLY</span>
+                  <span class="price-amount" id="ad-price-text">₹599 / 30ml</span>
+                </div>
+
+                <!-- Product Bottle with Realistic Contact Shadow -->
+                <div class="ad-bottle-wrapper">
+                  <div class="ad-contact-shadow"></div>
+                  <img id="ad-product-img" 
+                       src="/static/images/niacinamide.png" 
+                       alt="Minimalist Serum" 
+                       crossorigin="anonymous">
+                </div>
+
+                <!-- Purity seal badge -->
+                <div class="ad-purity-pill">
+                  <span class="purity-prefix">FORMULATION</span>
+                  <span class="purity-title">100% DISCLOSED</span>
+                </div>
+              </div>
+
+              <!-- 4. Free-From Claims Clinical Banner -->
+              <div class="ad-claims-strip" id="ad-claims-strip">
+                <span id="ad-claims-text">Fragrance Free • Non-Comedogenic • Essential Oil Free • Dye Free</span>
+              </div>
+
+              <!-- 5. Bottom Footer & CTA Row -->
+              <footer class="ad-bottom-bar">
+                <div class="ad-footer-left">
+                  <span class="ad-cert-text">DERMATOLOGICALLY TESTED</span>
+                  <span class="ad-cert-sub">Efficacy Proven in 2-4 Weeks</span>
+                </div>
+
+                <div class="ad-cta-button" id="ad-cta-btn">
+                  <span id="ad-cta-text">Shop Now at beminimalist.co</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </footer>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-footer-info">
+          <span>Scaled for display &bull; Native export delivers exact 1080 &times; 1080 pixel-perfect creative with pure white background</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

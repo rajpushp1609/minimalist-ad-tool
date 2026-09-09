@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1080, initial-scale=1.0">
+  <title>Minimalist 1080x1080 Ad Canvas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1080px;
+      background: #ffffff !important;
+      overflow: hidden;
+    }
+    .ad-creative-wrapper {
+      transform: none !important;
+      box-shadow: none !important;
+      width: 1080px !important;
+      height: 1080px !important;
+    }
+    .ad-creative {
+      width: 1080px !important;
+      height: 1080px !important;
+      position: relative !important;
+      box-shadow: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="ad-creative-wrapper">
+    <div class="ad-creative" id="ad-creative">
+      
+      <!-- 1. Brand Header -->
+      <header class="ad-top-bar">
+        <div class="ad-brand-row">
+          <div class="ad-brand-mark">
+            <span class="ad-bracket">[</span>
+            <span class="ad-name">Minimalist</span>
+            <span class="ad-bracket">]</span>
+          </div>
+          <div class="ad-tagline">
+            TRANSPARENT FORMULATIONS &bull; CLINICALLY PROVEN
+          </div>
+        </div>
+        <div class="ad-rule-line"></div>
+      </header>
+
+      <!-- 2. Messaging Block -->
+      <div class="ad-messaging-block">
+        <div class="ad-active-badge">
+          <span class="badge-accent-dot"></span>
+          <span id="ad-active-text">Niacinamide 10% • Zinc PCA 1%</span>
+        </div>
+
+        <h1 class="ad-headline-text" id="ad-headline-text">
+          Niacinamide 10% + Zinc 1%
+        </h1>
+
+        <p class="ad-description-text" id="ad-description-text">
+          Clinically proven face serum that balances sebum secretion, minimizes enlarged pores, and clears dark blemishes for clean, resilient skin.
+        </p>
+      </div>
+
+      <!-- 3. Centered Hero Product Section -->
+      <div class="ad-hero-container">
+        <div class="ad-price-pill">
+          <span class="price-prefix">ONLY</span>
+          <span class="price-amount" id="ad-price-text">₹599 / 30ml</span>
+        </div>
+
+        <div class="ad-bottle-wrapper">
+          <div class="ad-contact-shadow"></div>
+          <img id="ad-product-img" 
+               src="/static/images/niacinamide.png" 
+               alt="Minimalist Serum">
+        </div>
+
+        <div class="ad-purity-pill">
+          <span class="purity-prefix">FORMULATION</span>
+          <span class="purity-title">100% DISCLOSED</span>
+        </div>
+      </div>
+
+      <!-- 4. Free-From Claims Clinical Banner -->
+      <div class="ad-claims-strip" id="ad-claims-strip">
+        <span id="ad-claims-text">Fragrance Free • Non-Comedogenic • Essential Oil Free • Dye Free</span>
+      </div>
+
+      <!-- 5. Bottom Footer & CTA Row -->
+      <footer class="ad-bottom-bar">
+        <div class="ad-footer-left">
+          <span class="ad-cert-text">DERMATOLOGICALLY TESTED</span>
+          <span class="ad-cert-sub">Efficacy Proven in 2-4 Weeks</span>
+        </div>
+
+        <div class="ad-cta-button" id="ad-cta-btn">
+          <span id="ad-cta-text">Shop Now at beminimalist.co</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+</body>
+</html>
