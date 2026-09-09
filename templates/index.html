@@ -48,8 +48,8 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </div>
             <input type="url" id="product-url" class="url-text-input" 
-                   placeholder="https://beminimalist.co/products/retinol-0-6" 
-                   value="https://beminimalist.co/products/retinol-0-6"
+                   placeholder="https://beminimalist.co/products/pediatrics-provitamin-d3-massage-oil" 
+                   value="https://beminimalist.co/products/pediatrics-provitamin-d3-massage-oil"
                    autocomplete="off">
             <button type="button" id="fetch-url-btn" class="btn btn-fetch" title="Fetch product from beminimalist.co">
               <svg class="fetch-spinner-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
@@ -74,6 +74,7 @@
                       data-image="{{ preset.image_url }}"
                       data-desc="{{ preset.description }}"
                       data-free="{{ preset.free_from }}"
+                      data-tested="{{ preset.tested_for }}"
                       data-cta="{{ preset.cta }}">
                 {{ preset.name }}
               </button>
@@ -95,17 +96,17 @@
           <form id="ad-form" class="ad-form">
             <div class="form-group">
               <label for="product-name">Product Name <span class="badge-hint">&rarr; Headline</span></label>
-              <input type="text" id="product-name" name="name" placeholder="e.g. Retinol 0.6% Face Serum" required autocomplete="off">
+              <input type="text" id="product-name" name="name" placeholder="e.g. Provitamin D3 Massage Oil" required autocomplete="off">
             </div>
 
             <div class="form-row">
               <div class="form-group flex-1">
                 <label for="active-ingredient">Active Ingredient + %</label>
-                <input type="text" id="active-ingredient" name="active_ingredient" placeholder="e.g. Pure Retinol 0.6% • CoQ10" required autocomplete="off">
+                <input type="text" id="active-ingredient" name="active_ingredient" placeholder="e.g. Provitamin D3 • Vitamin E & F" required autocomplete="off">
               </div>
               <div class="form-group width-price">
                 <label for="product-price">Price</label>
-                <input type="text" id="product-price" name="price" placeholder="e.g. ₹617 / 30ml" required autocomplete="off">
+                <input type="text" id="product-price" name="price" placeholder="e.g. ₹569 / 100ml" required autocomplete="off">
               </div>
             </div>
 
@@ -116,7 +117,12 @@
 
             <div class="form-group">
               <label for="free-from">Free-From Claims <span class="badge-hint">&rarr; Clinical Badges</span></label>
-              <input type="text" id="free-from" name="free_from" placeholder="e.g. Fragrance Free • Water Free • Essential Oil Free" required autocomplete="off">
+              <input type="text" id="free-from" name="free_from" placeholder="e.g. Fragrance Free • Sulfates Free • Mineral Oil Free" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label for="tested-for">Tested For <span class="badge-hint">&rarr; Clinical Safety</span></label>
+              <textarea id="tested-for" name="tested_for" rows="2" placeholder="e.g. Proven Safe: Clinically Tested to be Hypoallergenic, Non-Comedogenic..." required></textarea>
             </div>
 
             <div class="form-group">
@@ -190,17 +196,17 @@
                 <!-- Active Ingredient Callout Badge -->
                 <div class="ad-active-badge">
                   <span class="badge-accent-dot"></span>
-                  <span id="ad-active-text">Pure Retinol 0.6% • CoQ10</span>
+                  <span id="ad-active-text">Provitamin D3 • Vitamin E & F</span>
                 </div>
 
                 <!-- Headline -->
                 <h1 class="ad-headline-text" id="ad-headline-text">
-                  Retinol 0.6% Face Serum
+                  Provitamin D3 Massage Oil
                 </h1>
 
                 <!-- Supporting Description -->
                 <p class="ad-description-text" id="ad-description-text">
-                  Medium strength Retinol formula in pure squalane for fading fine lines, smoothing uneven texture, and promoting cellular turnover.
+                  Crafted with nourishing Coconut, Sunflower, Safflower & Almond Oils enriched with Provitamin D3 to protect delicate skin and prevent moisture loss.
                 </p>
               </div>
 
@@ -209,14 +215,14 @@
                 <!-- Flanking Price Tag Pill -->
                 <div class="ad-price-pill">
                   <span class="price-prefix">ONLY</span>
-                  <span class="price-amount" id="ad-price-text">₹617 / 30ml</span>
+                  <span class="price-amount" id="ad-price-text">₹569 / 100ml</span>
                 </div>
 
                 <!-- Product Bottle with Realistic Contact Shadow -->
                 <div class="ad-bottle-wrapper">
                   <div class="ad-contact-shadow"></div>
                   <img id="ad-product-img" 
-                       src="https://cdn.shopify.com/s/files/1/0410/9608/5665/files/Retinol_06_New.png?v=1721398129" 
+                       src="https://cdn.shopify.com/s/files/1/0410/9608/5665/files/MassageOilNew.png?v=1721398127" 
                        alt="Minimalist Product" 
                        crossorigin="anonymous">
                 </div>
@@ -230,14 +236,19 @@
 
               <!-- 4. Free-From Claims Clinical Banner -->
               <div class="ad-claims-strip" id="ad-claims-strip">
-                <span id="ad-claims-text">Fragrance Free • Water Free • Essential Oil Free • Non-Comedogenic</span>
+                <span id="ad-claims-text">Fragrance Free • Sulfates Free • Essential Oils Free • Mineral Oil Free • Dyes Free • Parabens Free</span>
               </div>
 
               <!-- 5. Bottom Footer & CTA Row -->
               <footer class="ad-bottom-bar">
                 <div class="ad-footer-left">
-                  <span class="ad-cert-text">DERMATOLOGICALLY TESTED</span>
-                  <span class="ad-cert-sub">Efficacy Proven in 2-4 Weeks</span>
+                  <div class="ad-cert-badge-wrap">
+                    <span class="ad-cert-dot"></span>
+                    <span class="ad-cert-text" id="ad-cert-tag">CLINICALLY VALIDATED</span>
+                  </div>
+                  <p class="ad-cert-sub" id="ad-tested-text">
+                    Proven Safe: Clinically Tested to be Hypoallergenic, Non-Comedogenic, Sensitive skin safe, Pediatrician-approved &amp; Kind to Biome Certified, this oil is clinically validated for safety.
+                  </p>
                 </div>
 
                 <div class="ad-cta-button" id="ad-cta-btn">

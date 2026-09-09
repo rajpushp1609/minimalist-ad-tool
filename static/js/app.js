@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const priceInput = document.getElementById('product-price');
   const descInput = document.getElementById('short-description');
   const freeFromInput = document.getElementById('free-from');
+  const testedInput = document.getElementById('tested-for');
   const ctaInput = document.getElementById('ad-cta');
   const imageInput = document.getElementById('image-url');
   const fileInput = document.getElementById('image-file');
@@ -31,10 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const adPrice = document.getElementById('ad-price-text');
   const adDesc = document.getElementById('ad-description-text');
   const adClaims = document.getElementById('ad-claims-text');
+  const adTested = document.getElementById('ad-tested-text');
   const adCtaText = document.getElementById('ad-cta-text');
   const adImg = document.getElementById('ad-product-img');
 
-  const DEFAULT_IMG = "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/Retinol_06_New.png?v=1721398129";
+  const DEFAULT_IMG = "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/MassageOilNew.png?v=1721398127";
 
   // Auto-Scale 1080x1080 Canvas so it fits smoothly in preview viewport
   function updateCanvasScale() {
@@ -54,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Format Price Cleanly
   function formatPrice(val) {
-    if (!val) return '₹617 / 30ml';
+    if (!val) return '₹569 / 100ml';
     val = val.trim();
     if (!val.startsWith('₹') && !val.toLowerCase().startsWith('rs')) {
       return `₹${val}`;
@@ -64,23 +66,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Render Ad Canvas strictly from inputs
   function renderAdCreative() {
-    const name = nameInput.value.trim() || 'Retinol 0.6% Face Serum';
-    const active = activeInput.value.trim() || 'Pure Retinol 0.6% • CoQ10';
+    const name = nameInput.value.trim() || 'Provitamin D3 Massage Oil';
+    const active = activeInput.value.trim() || 'Provitamin D3 • Vitamin E & F';
     const price = formatPrice(priceInput.value);
-    const desc = descInput.value.trim() || 'Medium strength Retinol formula in pure squalane for fading fine lines, smoothing uneven texture, and promoting cellular turnover.';
-    const freeFrom = freeFromInput.value.trim() || 'Fragrance Free • Water Free • Essential Oil Free • Non-Comedogenic';
+    const desc = descInput.value.trim() || 'Crafted with nourishing Coconut, Sunflower, Safflower & Almond Oils enriched with Provitamin D3 to protect delicate skin and prevent moisture loss.';
+    const freeFrom = freeFromInput.value.trim() || 'Fragrance Free • Sulfates Free • Essential Oils Free • Mineral Oil Free • Dyes Free • Parabens Free';
+    const tested = (testedInput && testedInput.value.trim()) ? testedInput.value.trim() : 'Proven Safe: Clinically Tested to be Hypoallergenic, Non-Comedogenic, Sensitive skin safe, Pediatrician-approved & Kind to Biome Certified, this oil is clinically validated for safety.';
     const cta = ctaInput.value.trim() || 'Shop Now at beminimalist.co';
     const imgUrl = imageInput.value.trim() || DEFAULT_IMG;
 
     // Direct mapping to template elements
-    adHeadline.textContent = name;
-    adActive.textContent = active;
-    adPrice.textContent = price;
-    adDesc.textContent = desc;
-    adClaims.textContent = freeFrom;
-    adCtaText.textContent = cta;
+    if (adHeadline) adHeadline.textContent = name;
+    if (adActive) adActive.textContent = active;
+    if (adPrice) adPrice.textContent = price;
+    if (adDesc) adDesc.textContent = desc;
+    if (adClaims) adClaims.textContent = freeFrom;
+    if (adTested) adTested.textContent = tested;
+    if (adCtaText) adCtaText.textContent = cta;
 
-    if (imgUrl) {
+    if (imgUrl && adImg) {
       adImg.src = imgUrl;
       adImg.onerror = () => {
         console.warn('Product image failed to load, falling back to default Minimalist product image.');
@@ -133,12 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (resp.ok && data.success && data.product) {
         const prod = data.product;
 
-        // Auto-fill form fields
+        // Auto-fill all form fields
         nameInput.value = prod.name || '';
         activeInput.value = prod.active_ingredient || '';
         priceInput.value = prod.price || '';
         descInput.value = prod.description || '';
         if (prod.free_from) freeFromInput.value = prod.free_from;
+        if (prod.tested_for && testedInput) testedInput.value = prod.tested_for;
         if (prod.cta) ctaInput.value = prod.cta;
         if (prod.image_url) imageInput.value = prod.image_url;
 
@@ -187,8 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Live updates on typing in manual form
-  [nameInput, activeInput, priceInput, descInput, freeFromInput, ctaInput, imageInput].forEach(input => {
-    input.addEventListener('input', renderAdCreative);
+  const inputList = [nameInput, activeInput, priceInput, descInput, freeFromInput, testedInput, ctaInput, imageInput];
+  inputList.forEach(input => {
+    if (input) {
+      input.addEventListener('input', renderAdCreative);
+    }
   });
 
   // Local File Upload handler
@@ -238,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
       priceInput.value = chip.dataset.price || '';
       descInput.value = chip.dataset.desc || '';
       freeFromInput.value = chip.dataset.free || '';
+      if (testedInput && chip.dataset.tested) testedInput.value = chip.dataset.tested;
       ctaInput.value = chip.dataset.cta || '';
       imageInput.value = chip.dataset.image || '';
 

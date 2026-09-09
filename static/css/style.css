@@ -850,21 +850,42 @@ body {
 .ad-footer-left {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  max-width: 610px;
+}
+
+.ad-cert-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-cert-dot {
+  width: 7px;
+  height: 7px;
+  background-color: var(--brand-highlight);
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .ad-cert-text {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #111111;
+  text-transform: uppercase;
 }
 
 .ad-cert-sub {
   font-size: 13px;
-  color: #71717a;
+  line-height: 1.45;
+  color: #4b5563;
   font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .ad-cta-button {
