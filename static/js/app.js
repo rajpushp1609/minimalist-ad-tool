@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const adImg = document.getElementById('ad-product-img');
 
   const DEFAULT_IMG = "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/MassageOilNew.png?v=1721398127";
+  const FALLBACK_BOTTLE_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 400' width='200' height='400'><rect x='75' y='20' width='50' height='40' rx='4' fill='%23222222'/><rect x='85' y='10' width='30' height='12' rx='2' fill='%23111111'/><rect x='40' y='60' width='120' height='300' rx='16' fill='%23e4e4e7' stroke='%23d4d4d8' stroke-width='2'/><rect x='52' y='120' width='96' height='140' fill='%23ffffff' rx='4'/><rect x='62' y='140' width='50' height='6' rx='2' fill='%2318181b'/><rect x='62' y='152' width='76' height='4' rx='2' fill='%2371717a'/><rect x='62' y='160' width='60' height='4' rx='2' fill='%23a1a1aa'/><rect x='62' y='220' width='40' height='4' rx='2' fill='%2309090b'/></svg>";
 
   function toProxiedImageUrl(url) {
     if (!url) return '';
@@ -54,16 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!canvasViewport || !adWrapper) return;
     const padding = 32;
     const rect = canvasViewport.getBoundingClientRect();
-    const w = canvasViewport.clientWidth || rect.width || 0;
-    const h = canvasViewport.clientHeight || rect.height || 0;
-    const availableWidth = Math.max(0, w - padding);
-    const availableHeight = Math.max(0, h - padding);
-    
-    // If container hasn't resolved layout dimensions (e.g. initial paint <= 100px), retry next frame
-    if (availableWidth < 100 || availableHeight < 100) {
-      requestAnimationFrame(updateCanvasScale);
-      return;
-    }
+    const w = canvasViewport.clientWidth || rect.width || window.innerWidth - 460;
+    const h = canvasViewport.clientHeight || rect.height || window.innerHeight - 150;
+    const availableWidth = Math.max(80, w - padding);
+    const availableHeight = Math.max(80, h - padding);
     
     // Maintain exact 1:1 aspect ratio, clamped safely
     const scale = Math.max(0.1, Math.min(availableWidth / 1080, availableHeight / 1080, 1.0));
@@ -165,9 +160,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCanvasScale();
       };
       adImg.onerror = () => {
-        console.warn('Proxied image failed to load, falling back to direct URL.');
-        if (adImg.src !== imgUrl && !imgUrl.startsWith('/api/')) {
+        console.warn('Image load error on adImg, attempting fallbacks...');
+        if (adImg.src !== imgUrl && !imgUrl.startsWith('/api/') && !imgUrl.startsWith('data:')) {
           adImg.src = imgUrl;
+        } else if (!adImg.src.includes('MassageOilNew')) {
+          adImg.src = toProxiedImageUrl(DEFAULT_IMG);
+        } else {
+          adImg.src = FALLBACK_BOTTLE_SVG;
         }
       };
     }
