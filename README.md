@@ -191,14 +191,13 @@ Scores ad copy against the Minimalist Brand & Indian Skincare Regulatory Rubric 
 │   ├── index.html          # Creative Studio workspace (URL input, manual form, 1080x1080 canvas)
 │   ├── score.html          # Brand & Policy Scorer surface (paste box, structured inputs, audit report)
 │   ├── export.html         # Isolated 1080×1080 export view for headless verification
-│   └── test_export.html    # Standalone export test view
 ├── static/
 │   ├── css/
 │   │   └── style.css       # Unified design system for Studio and Scorer surfaces
 │   ├── js/
 │   │   ├── app.js          # Studio controller: URL fetch, canvas rendering, transfer to /score
 │   │   └── scorer.js       # Scorer controller: presets, DeepSeek audit rendering, transfer to Studio
-│   └── images/             # Local asset fallbacks
+│   └── images/             # (reserved for future local assets)
 ├── .gitignore              # Strictly ignores .env, venv, pycache, scratch files
 └── README.md               # Comprehensive documentation
 ```

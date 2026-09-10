@@ -88,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const SAMPLE_COMPLIANT = {
     headline: "Niacinamide 10% Face Serum",
     active_ingredient: "Niacinamide 10% + Zinc 1%",
-    supporting_text: "For oily, acne-prone skin with post-inflammatory redness. Formulated with pure Niacinamide (Vitamin B3) to balance sebum secretion and Zinc PCA to calm inflammation. Apply 2-3 drops daily in AM and PM routines after cleansing. In a 4-week independent consumer trial of 45 subjects, 89% reported reduced visible oiliness.",
+    supporting_text: "For oily, acne-prone skin with post-inflammatory blemishes. Formulated with Niacinamide (Vitamin B3) to balance excess sebum secretion and Zinc PCA to help calm visible redness. Apply 2-3 drops daily in AM and PM routines after cleansing for visible results in 2-4 weeks with consistent use.",
     free_from: "Fragrance Free • Essential Oils Free • Dyes Free • Sulfates Free",
-    tested_for: "Dermatologically tested: Evaluated for skin safety through 48-hour patch testing under the supervision of an independent certified dermatologist.",
+    tested_for: "The product has been evaluated for safety through patch testing under the supervision of a Dermatologist.",
     cta: "Shop Now at beminimalist.co"
   };
 

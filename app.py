@@ -394,9 +394,7 @@ def canvas_export():
     """Clean isolated 1080x1080 export template view without UI chrome."""
     return render_template('export.html')
 
-@app.route('/test-export')
-def test_export():
-    return render_template('test_export.html')
+
 
 def load_scorer_rubric():
     """Load the committed brand & compliance rubric markdown."""
@@ -497,7 +495,7 @@ def api_score_ad():
             logger.error("DeepSeek API error %s: %s", resp.status_code, resp.text)
             return jsonify({
                 "success": False,
-                "error": f"DeepSeek API returned error HTTP {resp.status_code}: {resp.text}"
+                "error": "The scoring service encountered an error. Please try again."
             }), 502
 
         data = resp.json()
@@ -521,17 +519,17 @@ def api_score_ad():
         logger.error("Failed to parse JSON response from DeepSeek: %s\nContent was: %s", str(jde), raw_content)
         return jsonify({
             "success": False,
-            "error": f"Failed to parse LLM evaluation JSON: {str(jde)}",
-            "raw_output": raw_content
+            "error": "The scoring service returned an invalid response. Please try again."
         }), 500
     except Exception as e:
         logger.error("Unexpected error during ad scoring: %s", str(e), exc_info=True)
         return jsonify({
             "success": False,
-            "error": f"Scoring service error: {str(e)}"
+            "error": "An unexpected error occurred during scoring. Please try again."
         }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5001))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true", "yes")
+    app.run(host='0.0.0.0', port=port, debug=debug)
 

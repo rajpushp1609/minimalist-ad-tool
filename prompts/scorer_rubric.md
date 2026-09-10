@@ -189,6 +189,15 @@ You must respond strictly with valid JSON conforming to this structure:
         }
       ]
     }
+  },
+  "suggested_compliant_copy": {
+    "headline": "Fully rewritten compliant headline (or original if already compliant)",
+    "active_ingredient": "Active ingredient with exact concentration % format",
+    "supporting_text": "Fully rewritten supporting text that passes all 3 dimensions — mechanism-focused, quantified where possible, usage-linked",
+    "free_from": "Compliant free-from transparency claims using recognized cosmetic terms",
+    "tested_for": "Compliant clinical/test claims (only if sourced; leave empty string if no real test data exists)",
+    "cta": "Compliant Minimalist-style CTA (e.g. Shop Now at beminimalist.co)"
   }
 }
 ```
+
