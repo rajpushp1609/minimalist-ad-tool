@@ -5,3 +5,4 @@ __pycache__/
 scratch/
 *.log
 .env
+antigravity_export/

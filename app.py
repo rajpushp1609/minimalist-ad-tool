@@ -45,7 +45,7 @@ SAMPLE_PRESETS = [
         "image_url": "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/Retinol_06_New.png?v=1721398129",
         "description": "Medium strength Retinol formula in pure squalane for fading fine lines, smoothing uneven texture, and promoting cellular turnover.",
         "free_from": "Fragrance Free • Non-comedogenic • Essential Oil Free",
-        "tested_for": "The product has been evaluated for safety through patch testing under the supervision of a Dermatologist.",
+        "tested_for": "",  # Not on page -> left blank
         "cta": "Shop Now at beminimalist.co"
     },
     {
@@ -84,20 +84,43 @@ def clean_text(raw_html):
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
-def extract_active_ingredient(title, desc=""):
-    """Heuristically extract active ingredient name and percentage from title or description. Never invent."""
-    # Pattern with percentage, e.g. "Retinol 0.6%", "Niacinamide 10%", "Copper Peptide + PDRN 1.25%"
+def extract_active_ingredient(title, desc="", soup=None):
+    """
+    Extract authentic active ingredient name and percentage from title, description, or page.
+    Never invent.
+    """
+    title = title or ""
+    desc = desc or ""
+
+    # 1. Look in title with percentage, e.g. "Retinol 0.6%", "Niacinamide 10%", "AHA PHA BHA 32%"
     match = re.search(r"([A-Za-z0-9\+\-\s]+?\b\d+(?:\.\d+)?%)", title)
     if match:
         return match.group(1).strip()
-    
-    # Known key skincare/haircare active names without percentage
+
+    # 2. Check for SPF products
+    spf_match = re.search(r"\b(SPF\s*\d+\s*(?:,\s*PA\+{1,4})?)\b", title, re.I)
+    if spf_match:
+        spf_str = spf_match.group(1).strip()
+        parts = [spf_str]
+        if desc:
+            pa_match = re.search(r"\b(PA\+{3,4})\b", desc)
+            if pa_match and pa_match.group(1) not in spf_str:
+                parts.append(pa_match.group(1))
+            if re.search(r'multi[\-\s]vitamins?', desc, re.I):
+                parts.append("Multi-Vitamins")
+            elif re.search(r'(\d+\s*UV[\-\s]filters?)', desc, re.I):
+                m_filt = re.search(r'(\d+\s*UV[\-\s]filters?)', desc, re.I)
+                parts.append(m_filt.group(1).title())
+        return " • ".join(parts)
+
+    # 3. Known key skincare/haircare active names without percentage in title
     known_actives = [
         "Provitamin D3", "Vitamin C", "Vitamin B12", "Vitamin B5", "Niacinamide",
         "Salicylic Acid", "L-Ascorbic Acid", "Hyaluronic Acid", "Polyhydroxy Acid",
         "Alpha Arbutin", "Tranexamic", "Kojic Acid", "Glycolic Acid", "Lactic Acid",
         "Mandelic Acid", "Azelaic Acid", "Ceramide", "Peptide", "PDRN", "Retinal",
-        "Retinol", "Squalane", "Marula Oil", "Bifida Ferment", "Zinc Oxide", "HOCL"
+        "Retinol", "Squalane", "Marula Oil", "Bifida Ferment", "Zinc Oxide", "HOCL",
+        "Multi-Vitamin", "Multi-Vitamins", "Bakuchiol", "Centella Asiatica"
     ]
     for act in known_actives:
         if re.search(r'\b' + re.escape(act) + r'\b', title, re.I):
@@ -109,6 +132,30 @@ def extract_active_ingredient(title, desc=""):
         for act in known_actives:
             if re.search(r'\b' + re.escape(act) + r'\b', cleaned, re.I):
                 return cleaned
+
+    # 4. If not found in title, check description for percentage or key actives
+    if desc:
+        desc_pct = re.search(r"([A-Za-z0-9\+\-\s]+?\b\d+(?:\.\d+)?%)", desc)
+        if desc_pct and len(desc_pct.group(1).strip()) < 40:
+            return desc_pct.group(1).strip()
+
+        # Check for 'Formulated with [actives]' pattern
+        m = re.search(r'[Ff]ormulated with\s+([^,\.]+?(?:,\s*[^,\.]+?)*?\s+and\s+[^,\.]+)', desc)
+        if m:
+            actives_str = m.group(1).strip()
+            if len(actives_str) < 60:
+                return actives_str
+
+        for act in known_actives:
+            if re.search(r'\b' + re.escape(act) + r'\b', desc, re.I):
+                return act
+
+    # 5. Check product subtitle or badges in soup
+    if soup:
+        for c in soup.find_all(class_=re.compile(r'product__subtitle|active-ingredient|hero-ingredient', re.I)):
+            txt = clean_text(c.get_text())
+            if txt and len(txt) < 50 and txt.lower() not in ['search', 'menu']:
+                return txt
 
     return ""
 
@@ -137,35 +184,57 @@ def extract_free_from(soup, raw_desc):
 
 def extract_tested_for(soup, raw_desc):
     """
-    Extract clinical test claims (e.g. Proven Safe / Clinically Tested / Patch Tested).
-    Never invent claims. Returns empty string if not found on page.
+    Extract authentic, product-specific clinical test claims (e.g. ISO lab tests, in-vivo trials, Princeton studies).
+    EXCLUDES the generic boilerplate patch test footnote.
+    Never invent claims. Returns empty string if no product-specific clinical study is found.
     """
-    full_desc_clean = clean_text(raw_desc)
+    # 1. Search for detailed third-party clinical results / lab reports on the page
+    # E.g. Sunscreen in-vivo ISO 24444 report
+    for block in soup.find_all(['div', 'section', 'article', 'p']):
+        t = clean_text(block.get_text(separator=" "))
+        if 'iso 24444' in t.lower() and ('spf value obtained' in t.lower() or 'in-vivo' in t.lower()):
+            # Extract clean summarized lab data points
+            spf_val = re.search(r'SPF value obtained:\s*([\d\.]+)', t, re.I)
+            test_type = re.search(r'Test type:\s*(IN-VIVO[^\.]*?ISO\s*\d+[\:\d]*)', t, re.I)
+            lab_org = re.search(r'conducted by\s*([A-Za-z\s]+?),\s*an independent', t, re.I)
+            parts = []
+            if test_type:
+                parts.append(test_type.group(1).strip())
+            else:
+                parts.append("IN-VIVO ISO 24444 Tested")
+            if spf_val:
+                parts.append(f"Confirmed SPF {spf_val.group(1).strip()} & PA++++")
+            if lab_org:
+                parts.append(f"by {lab_org.group(1).strip()}")
+            return " • ".join(parts)
 
-    # 1. Check for 'Proven Safe:' specifically
+    # 2. Check for explicit Princeton or independent laboratory clinical study citations
+    for tag in soup.find_all(['p', 'span', 'li']):
+        t = clean_text(tag.get_text())
+        # Exclude generic dermatologist patch test note
+        if 'evaluated for safety through patch testing' in t.lower():
+            continue
+        if 'note: the product has been evaluated' in t.lower():
+            continue
+
+        if any(k in t.lower() for k in ['tested at princeton', 'in-vivo evaluation', 'in vivo evaluation', 'consumer trial of', 'clinical study of']):
+            if 25 < len(t) < 220 and not tag.find(['p', 'div']):
+                return t
+
+    # 3. Check for specific 'Proven Safe:' with recognized certifications (e.g. Kind to Biome, Pediatrician-approved)
+    full_desc_clean = clean_text(raw_desc)
     m = re.search(r'(Proven Safe:\s*.*?(?:\.|\bvalidated for safety\b[^\.]*\.?))', full_desc_clean, re.I)
     if m:
-        return m.group(1).strip()
+        res = m.group(1).strip()
+        if 'evaluated for safety through patch testing' not in res.lower() or 'kind to biome' in res.lower():
+            return res
 
-    for tag in soup.find_all(['span', 'p', 'div', 'li']):
+    for tag in soup.find_all(['span', 'p', 'li']):
         t = clean_text(tag.get_text())
-        if t.lower().startswith('proven safe:'):
+        if t.lower().startswith('proven safe:') and ('kind to biome' in t.lower() or 'pediatrician' in t.lower()):
             return t
 
-    # 2. Check for explicit clinical test / laboratory citations on page
-    for tag in soup.find_all(['p', 'span', 'li', 'div']):
-        t = clean_text(tag.get_text())
-        if any(k in t.lower() for k in ['tested at princeton', 'patch tested in presence of', 'evaluated for safety through patch testing']):
-            if 25 < len(t) < 220 and not tag.find(['p', 'div']):
-                return t
-
-    # 3. Check for independent lab / human test citations
-    for tag in soup.find_all(['p', 'span', 'em']):
-        t = clean_text(tag.get_text())
-        if 'all tests are conducted on humans' in t.lower() or ('clinically tested to be' in t.lower() and len(t) < 220):
-            if 25 < len(t) < 220 and not tag.find(['p', 'div']):
-                return t
-
+    # Do not invent, and do NOT return the generic patch test footnote
     return ""
 
 def fetch_beminimalist_product(url):
@@ -343,6 +412,14 @@ def fetch_beminimalist_product(url):
 
     if product_data["tested_for"] is None:
         product_data["tested_for"] = ""
+
+    current_act = product_data.get("active_ingredient", "")
+    if not current_act or ("SPF" in product_data["name"] and "PA" not in current_act):
+        enriched_act = extract_active_ingredient(
+            product_data["name"], product_data.get("description", ""), soup if 'soup' in locals() else None
+        )
+        if enriched_act:
+            product_data["active_ingredient"] = enriched_act
 
     if product_data["active_ingredient"] is None:
         product_data["active_ingredient"] = ""

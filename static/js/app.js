@@ -44,10 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!canvasViewport || !adWrapper) return;
     const padding = 32;
     const rect = canvasViewport.getBoundingClientRect();
-    const availableWidth = Math.max(0, (canvasViewport.clientWidth || rect.width) - padding);
-    const availableHeight = Math.max(0, (canvasViewport.clientHeight || rect.height) - padding);
+    const w = canvasViewport.clientWidth || rect.width || 0;
+    const h = canvasViewport.clientHeight || rect.height || 0;
+    const availableWidth = Math.max(0, w - padding);
+    const availableHeight = Math.max(0, h - padding);
     
-    if (availableWidth <= 0 || availableHeight <= 0) {
+    // If container hasn't resolved layout dimensions (e.g. initial paint <= 100px), retry next frame
+    if (availableWidth < 100 || availableHeight < 100) {
       requestAnimationFrame(updateCanvasScale);
       return;
     }
