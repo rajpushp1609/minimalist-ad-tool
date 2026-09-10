@@ -306,7 +306,15 @@ def fetch_beminimalist_product(url):
             elif meta_desc and meta_desc.get("content"):
                 marketing_desc = clean_text(meta_desc["content"])
 
-            if marketing_desc and len(marketing_desc) > 25 and (not product_data["description"] or len(product_data["description"]) < 35):
+            # Detect low-quality descriptions (bare usage instructions, not real marketing copy)
+            current_desc = product_data["description"]
+            is_low_quality = (
+                not current_desc
+                or len(current_desc) < 60
+                or bool(re.match(r'^(When to use|How to use|Frequency|Step \d|Directions)\s*:', current_desc, re.I))
+            )
+
+            if marketing_desc and len(marketing_desc) > 25 and is_low_quality:
                 product_data["description"] = marketing_desc
 
             if not product_data["image_url"]:
