@@ -3,7 +3,7 @@ import re
 import html
 import logging
 from urllib.parse import urlparse
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 import requests
 import certifi
 from bs4 import BeautifulSoup
@@ -221,20 +221,15 @@ def extract_tested_for(soup, raw_desc):
             if 25 < len(t) < 220 and not tag.find(['p', 'div']):
                 return t
 
-    # 3. Check for specific 'Proven Safe:' with recognized certifications (e.g. Kind to Biome, Pediatrician-approved)
-    full_desc_clean = clean_text(raw_desc)
-    m = re.search(r'(Proven Safe:\s*.*?(?:\.|\bvalidated for safety\b[^\.]*\.?))', full_desc_clean, re.I)
-    if m:
-        res = m.group(1).strip()
-        if 'evaluated for safety through patch testing' not in res.lower() or 'kind to biome' in res.lower():
-            return res
-
-    for tag in soup.find_all(['span', 'p', 'li']):
+    # 4. Check for Dermatologist patch test evaluation on page
+    for tag in soup.find_all(['p', 'span', 'li']):
         t = clean_text(tag.get_text())
-        if t.lower().startswith('proven safe:') and ('kind to biome' in t.lower() or 'pediatrician' in t.lower()):
-            return t
+        if 'evaluated for safety through patch testing' in t.lower() or 'patch tested under the supervision of a dermatologist' in t.lower():
+            if 20 < len(t) < 200 and not tag.find(['p', 'div']):
+                clean_note = re.sub(r'^\s*Note:\s*', '', t, flags=re.I).strip()
+                return f"Dermatologically Tested: {clean_note}"
 
-    # Do not invent, and do NOT return the generic patch test footnote
+    # Do not invent
     return ""
 
 def fetch_beminimalist_product(url):
@@ -439,6 +434,37 @@ def fetch_beminimalist_product(url):
 @app.route('/')
 def index():
     return render_template('index.html', presets=SAMPLE_PRESETS)
+
+@app.route('/api/proxy-image')
+def proxy_image():
+    """Proxy external product images through Flask to eliminate CORS restrictions and broken image icons."""
+    img_url = request.args.get('url', '').strip()
+    if not img_url:
+        return ("Missing url parameter", 400)
+
+    if img_url.startswith('//'):
+        img_url = 'https:' + img_url
+    elif not img_url.startswith('http'):
+        return ("Invalid url parameter", 400)
+
+    try:
+        r = requests.get(
+            img_url,
+            headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"},
+            verify=certifi.where(),
+            timeout=12
+        )
+        if r.status_code == 200:
+            content_type = r.headers.get("Content-Type", "image/png")
+            resp = Response(r.content, mimetype=content_type)
+            resp.headers["Access-Control-Allow-Origin"] = "*"
+            resp.headers["Cache-Control"] = "public, max-age=86400"
+            return resp
+        logger.warning("Upstream image fetch returned status %d for %s", r.status_code, img_url)
+        return (f"Failed to fetch image: HTTP {r.status_code}", r.status_code)
+    except Exception as e:
+        logger.error("Error proxying image %s: %s", img_url, str(e))
+        return (f"Proxy error: {str(e)}", 500)
 
 @app.route('/api/presets', methods=['GET'])
 def get_presets():

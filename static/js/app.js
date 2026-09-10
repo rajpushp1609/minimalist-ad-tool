@@ -39,6 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULT_IMG = "https://cdn.shopify.com/s/files/1/0410/9608/5665/files/MassageOilNew.png?v=1721398127";
 
+  function toProxiedImageUrl(url) {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('data:') || trimmed.startsWith('blob:') || trimmed.startsWith('/api/proxy-image')) {
+      return trimmed;
+    }
+    return `/api/proxy-image?url=${encodeURIComponent(trimmed)}`;
+  }
+
   // Auto-Scale 1080x1080 Canvas so it fits smoothly in preview viewport
   function updateCanvasScale() {
     if (!canvasViewport || !adWrapper) return;
@@ -145,17 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Product Bottle Image
-    if (imgUrl && adImg) {
-      if (adImg.src !== imgUrl) {
-        adImg.src = imgUrl;
+    if (adImg) {
+      const proxiedUrl = toProxiedImageUrl(imgUrl);
+      if (adImg.dataset.rawSrc !== imgUrl) {
+        adImg.dataset.rawSrc = imgUrl;
+        adImg.src = proxiedUrl;
       }
       adImg.onload = () => {
         updateCanvasScale();
       };
       adImg.onerror = () => {
-        console.warn('Product image failed to load, falling back to default Minimalist product image.');
-        if (adImg.src !== DEFAULT_IMG) {
-          adImg.src = DEFAULT_IMG;
+        console.warn('Proxied image failed to load, falling back to direct URL.');
+        if (adImg.src !== imgUrl && !imgUrl.startsWith('/api/')) {
+          adImg.src = imgUrl;
         }
       };
     }
