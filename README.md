@@ -1,16 +1,65 @@
-# Minimalist Ad Creative Studio
+# Minimalist Ad Creative Studio & Brand Compliance Auditor
 
-Internal ad creative studio for **[Minimalist](https://beminimalist.co)** — the transparent, science-backed skincare brand.
+Internal ad creative studio and regulatory audit engine for **[Minimalist](https://beminimalist.co)** — the transparent, science-backed skincare brand.
 
-Paste any `beminimalist.co` product URL → the backend fetches and parses product details server-side → generates an authentic, pixel-perfect **1080×1080** social media ad creative.
+🚀 **Live Deployed Application**: **[https://minimalist-ad-tool.onrender.com/](https://minimalist-ad-tool.onrender.com/)**
+
+Paste any `beminimalist.co` product URL → the backend fetches and parses product details server-side → generates an authentic, pixel-perfect **1080×1080** social media ad creative. Audit compliance against Indian skincare advertising law (Drugs & Cosmetics Rules 2020, ASCI Code) and Minimalist brand guidelines in one click.
 
 ---
 
-## Key Features
+## 📖 Instructions: How to Use the Tool
 
-- **Product URL Primary Input**:
-  - Paste any live `beminimalist.co` product page URL (e.g. `https://beminimalist.co/products/pediatrics-provitamin-d3-massage-oil`).
-  - Click **Fetch Details** or hit `Enter` to extract all product assets automatically.
+### Surface A: Ad Creative Studio (`/`)
+
+1. **Generate Ad from a Live Product URL**:
+   - Navigate to **[https://minimalist-ad-tool.onrender.com/](https://minimalist-ad-tool.onrender.com/)**.
+   - In the **Primary Input** box at the top left, paste any live `beminimalist.co` product URL (e.g. `https://beminimalist.co/products/aha-25-pha-5-bha-2` or `https://beminimalist.co/products/multi-vitamin-spf-50`).
+   - Click **Fetch Details** (or press `Enter`).
+   - The backend server extracts the authentic product title, primary active ingredients, real price, clinical safety validations, free-from claims, and high-resolution Shopify bottle imagery.
+   - The **1080×1080 Live Canvas Preview** on the right updates in real-time.
+
+2. **One-Click Live Presets**:
+   - Under *Live Minimalist Products (One-Click Fetch)*, click any preset chip (*Provitamin D3 Massage Oil*, *Retinol 0.6% Face Serum*, *Copper Peptide + PDRN 1.25%*, or *Hair Growth + Anti-Grey 15.6%*) to instantly populate and view authentic brand creatives.
+
+3. **Edit & Customize Ad Copy (Manual Fallback)**:
+   - Use the **Product Details** form on the left to fine-tune headlines, active concentrations, short benefit descriptions, or free-from badges.
+   - The live preview updates instantly as you type.
+
+4. **Export 1080×1080 High-Res PNG**:
+   - Click **Export 1080x1080 PNG** at the top right.
+   - The tool builds an unscaled 1:1 off-screen DOM clone and triggers a direct browser download of the exact 1080×1080 pixel-perfect PNG with pure white background `(255, 255, 255)` ready for Instagram and digital ad placements.
+
+5. **Transfer to Audit Scorer**:
+   - Click **Score This Creative** right above the canvas preview.
+   - All extracted fields (headline, active ingredient, supporting description, claims, CTA) are seamlessly transferred to the **Brand & Policy Scorer** for automated compliance review.
+
+---
+
+### Surface B: Brand & Policy Scorer (`/score`)
+
+1. **Navigate to Scorer**:
+   - Click the **Brand & Policy Scorer** tab in the top navigation bar or visit **[https://minimalist-ad-tool.onrender.com/score](https://minimalist-ad-tool.onrender.com/score)**.
+
+2. **Run an Audit**:
+   - If arriving from Studio via "Score This Creative", your copy will be pre-filled automatically.
+   - Alternatively, test using the built-in preset test cases:
+     - **Compliant Minimalist Copy** (`PUBLISH` / Pass)
+     - **High-Risk Policy Violation** (Curative disease claims, chemical fearmongering / `BLOCK`)
+     - **Hyperbolic Tone & Fluff** (Glass skin clichés, fairy-tale claims / `NEEDS REVISION`)
+   - Or paste raw unformatted headline, body, and CTA copy from any external ad into the **Raw Ad Copy Paste** box.
+   - Click **Audit Ad Copy**.
+
+3. **Review Audit Report**:
+   - **Overall Verdict**: `PUBLISH` (Green), `NEEDS REVISION` (Amber), or `BLOCK` (Red).
+   - **Dimension Breakdown**:
+     - *Policy & Claims*: Evaluates Drugs & Cosmetics Rules 2020 (no curative disease claims) and ASCI Code Chapter I (truthful substantiation).
+     - *Brand Tone*: Evaluates education-first values and strict prohibition of fear-based marketing ("toxic chemical" scaremongering).
+     - *Brand Language & Formatting*: Checks ingredient concentration syntax `[Active %]` and approved scientific vocabulary.
+   - Highlights exact flagged text snippets with severity ratings, legal citations, and suggested compliant fixes.
+
+4. **Transfer Approved Copy back to Studio**:
+   - If the auditor provides a compliant rewrite, click **"Send to Studio"** at the bottom of the audit report to automatically reload the compliant text into the Studio canvas.
 
 - **Server-Side Fetching & Parsing (`app.py`)**:
   - **SSL Verification via `certifi`**: Secure HTTPS requests using Mozilla's CA bundle.
