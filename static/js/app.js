@@ -42,18 +42,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-Scale 1080x1080 Canvas so it fits smoothly in preview viewport
   function updateCanvasScale() {
     if (!canvasViewport || !adWrapper) return;
-    const padding = 40;
-    const availableWidth = canvasViewport.clientWidth - padding;
-    const availableHeight = canvasViewport.clientHeight - padding;
+    const padding = 32;
+    const rect = canvasViewport.getBoundingClientRect();
+    const availableWidth = Math.max(0, (canvasViewport.clientWidth || rect.width) - padding);
+    const availableHeight = Math.max(0, (canvasViewport.clientHeight || rect.height) - padding);
     
-    // Maintain exact 1:1 aspect ratio
-    const scale = Math.max(0.2, Math.min(availableWidth / 1080, availableHeight / 1080));
+    if (availableWidth <= 0 || availableHeight <= 0) {
+      requestAnimationFrame(updateCanvasScale);
+      return;
+    }
+    
+    // Maintain exact 1:1 aspect ratio, clamped safely
+    const scale = Math.max(0.1, Math.min(availableWidth / 1080, availableHeight / 1080, 1.0));
     adWrapper.style.transform = `scale(${scale})`;
     adWrapper.style.width = '1080px';
     adWrapper.style.height = '1080px';
   }
 
   window.addEventListener('resize', updateCanvasScale);
+  window.addEventListener('load', updateCanvasScale);
+  if (window.ResizeObserver && canvasViewport) {
+    const resizeObs = new ResizeObserver(() => {
+      requestAnimationFrame(updateCanvasScale);
+    });
+    resizeObs.observe(canvasViewport);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateCanvasScale);
+  }
 
   // Format Price Cleanly
   function formatPrice(val) {
@@ -127,12 +143,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Product Bottle Image
     if (imgUrl && adImg) {
-      adImg.src = imgUrl;
+      if (adImg.src !== imgUrl) {
+        adImg.src = imgUrl;
+      }
+      adImg.onload = () => {
+        updateCanvasScale();
+      };
       adImg.onerror = () => {
         console.warn('Product image failed to load, falling back to default Minimalist product image.');
-        adImg.src = DEFAULT_IMG;
+        if (adImg.src !== DEFAULT_IMG) {
+          adImg.src = DEFAULT_IMG;
+        }
       };
     }
+
+    updateCanvasScale();
   }
 
   // Display status feedback banner
